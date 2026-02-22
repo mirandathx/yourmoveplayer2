@@ -11,17 +11,11 @@
        url("fonts/ArcadeClassic.woff") format("woff");
 }
 
-body, h1, h2, p, button, .score-number, .ticker {
-  font-family: "ArcadeClassic OFF", monospace !important;
-  margin:0; padding:0;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  text-align:center;
-}
-
 body{
   margin:0; height:100vh; display:flex; justify-content:center; align-items:center; 
   overflow:hidden; 
   background:radial-gradient(circle at top,#ff00c8,#ff7a00 40%,#1a001f 80%); 
+  font-family: "ArcadeClassic OFF", monospace;
   color:white;
 }
 
@@ -46,10 +40,10 @@ body::after{
 }
 
 .container{
-  width:85%; max-width:400px; height:70vh; border:6px solid #00fff7; box-shadow:0 0 25px #ff00c8; 
-  background: rgba(0,0,0,0.85);
-  padding:20px; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative;
-  z-index:2;
+  width:85%; max-width:400px; height:70vh; border:6px solid #00fff7; 
+  box-shadow:0 0 25px #ff00c8; background: rgba(0,0,0,0.85);
+  padding:20px; display:flex; flex-direction:column; justify-content:center; align-items:center; 
+  position:relative; z-index:2;
   text-align:center;
 }
 @media(max-width:600px){
@@ -62,33 +56,35 @@ body::after{
 
 .hidden{display:none;}
 
-h1,h2{color:#ff00c8; margin-bottom:20px;}
-p{color:#00ff7; margin-bottom:15px;}
-
-button{
-  width:90%; max-width:300px; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;
-  flex-shrink:0;
-}
-button:hover{background:#00fff7;color:black;}
+h1,h2{color:#ff00c8; margin-bottom:15px;}
+p{color:#00ff7; margin-bottom:10px;}
 
 .score-number{
   color:#ff7a00;
   margin:6px; 
   font-size:18px;
-  white-space: nowrap; 
   text-align:center;
+  width:100%;
+  white-space: nowrap; /* keeps score on one line */
 }
 .score-number.glow{text-shadow:0 0 15px orange; transition:0.3s;}
 
 .ticker{
-  width:90%; max-width:300px; padding:15px; margin:15px 0; min-height:50px; 
-  color:white; font-size:20px; /* increased font */
-  display:flex; align-items:center; justify-content:center;
-  background:transparent; 
-  border:none; 
+  width:90%; max-width:300px; font-size:20px; color:white;
+  text-align:center;
+  margin:15px 0;
+  display:flex; justify-content:center; align-items:center;
+  min-height:50px;
+  background:transparent; border:none;
 }
 
-/* Nice popup at bottom */
+button{
+  width:90%; max-width:300px; padding:12px; margin:8px 0;
+  background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;
+  flex-shrink:0;
+}
+button:hover{background:#00fff7;color:black;}
+
 .nice-text{
   position:absolute;
   bottom:10px;
@@ -121,6 +117,7 @@ button:hover{background:#00fff7;color:black;}
   bottom:5px;
   cursor:pointer;
 }
+
 #startScreen h2{font-size:36px;}
 #startScreen p{font-size:20px; margin:10px 0;}
 </style>
@@ -222,7 +219,7 @@ function runSlot(tickerId, scoreId){
     const ticker = document.getElementById(tickerId);
     const scoreDisplay = document.getElementById(scoreId);
     let spins = 0;
-    let totalSpins = 10 + Math.floor(Math.random()*5);
+    let totalSpins = 12 + Math.floor(Math.random()*6);
     const interval = setInterval(()=>{
         ticker.innerText = tickers[tickerId][Math.floor(Math.random()*tickers[tickerId].length)];
         spins++;
@@ -241,7 +238,7 @@ function runSlot(tickerId, scoreId){
             if(score===50) showCelebration("Wahoo!");
             if(score===100) showCelebration("MAX SCORE!");
         }
-    },50);
+    },60);
 }
 
 function showNice(){
