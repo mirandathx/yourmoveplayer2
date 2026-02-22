@@ -63,6 +63,30 @@ p{margin:0 0 10px 0;}
   padding: 15px 10px;
 }
 
+/* Main prompt buttons */
+button:not(.backButton){
+  background:black;
+  border:3px solid #00fff7;
+  color:#00fff7;
+  cursor:pointer;
+}
+button:not(.backButton):hover{
+  background:#00fff7;
+  color:black;
+}
+
+/* Back button style */
+.backButton{
+  background:black;
+  border:3px solid #ff00c8;
+  color:#ff00c8;
+  cursor:pointer;
+}
+.backButton:hover{
+  background:#ff00c8;
+  color:black;
+}
+
 .ticker{
   border:2px solid #00fff7; 
   padding:15px; 
@@ -70,24 +94,6 @@ p{margin:0 0 10px 0;}
 }
 .explosion{position:absolute; font-size:40px; animation:boom 0.6s forwards;}
 @keyframes boom{0%{transform:scale(0);}50%{transform:scale(1.4);}100%{transform:scale(0);}}
-
-.coin{
-  position:fixed;
-  width:30px;
-  height:30px;
-  background:#ff0;
-  border:2px solid #fff;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,50%) scale(0);
-  animation:coinJump 0.8s forwards;
-  z-index:10;
-}
-@keyframes coinJump{
-  0%{transform:translate(-50%,50%) scale(0);}
-  50%{transform:translate(-50%,-30%) scale(1.4);}
-  100%{transform:translate(-50%,0) scale(1);}
-}
 
 .nice-text{
   position:absolute; top:80%; font-size:20px; color:#00ff88; text-shadow:0 0 10px #0ff;
@@ -130,7 +136,7 @@ p{margin:0 0 10px 0;}
 <div class="score-number" id="scoreCompliment">0/100</div>
 <button onclick="generateTicker('compliment')">CLICK TO GENERATE</button>
 <div class="ticker" id="complimentTicker">---</div>
-<button onclick="goTo('mainScreen')">BACK</button>
+<button class="backButton" onclick="goTo('mainScreen')">BACK</button>
 </div>
 
 <!-- DATE SCREEN -->
@@ -139,11 +145,10 @@ p{margin:0 0 10px 0;}
 <div class="score-number" id="scoreDate">0/100</div>
 <button onclick="generateTicker('date')">CLICK TO GENERATE</button>
 <div class="ticker" id="dateTicker">---</div>
-<button onclick="goTo('mainScreen')">BACK</button>
+<button class="backButton" onclick="goTo('mainScreen')">BACK</button>
 </div>
 
 <!-- AUDIO -->
-<audio id="coinSound"><source src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
 <audio id="lockSound"><source src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
 <audio id="explodeSound"><source src="https://assets.mixkit.co/active_storage/sfx/2067/2067-preview.mp3"></audio>
 <audio id="bgMusic" loop><source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3"></audio>
@@ -154,16 +159,8 @@ let score=0, combo=1;
 
 // START GAME
 function startGame(){
-    document.getElementById("coinSound").play();
-    showCoin();
     document.getElementById("bgMusic").play();
     goTo('mainScreen');
-}
-function showCoin(){
-    let coin = document.createElement("div");
-    coin.className="coin";
-    document.body.appendChild(coin);
-    setTimeout(()=>coin.remove(),800);
 }
 
 // NAVIGATION
@@ -173,7 +170,7 @@ function goTo(screen){
     clearAllIntervals();
 }
 
-// SCORE UPDATE (no glow)
+// SCORE UPDATE
 function updateMeter(skipGameOver=false){
     const scoreElements = ['score','scoreCompliment','scoreDate'];
     scoreElements.forEach(id=>{
@@ -240,7 +237,7 @@ function generateTicker(type){
         if(i > 15){
             clearInterval(tickerIntervals[type]);
             document.getElementById("lockSound").play();
-            addScore(10); // no glow
+            addScore(10); 
             showNiceText();
         }
     }, 100);
