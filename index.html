@@ -3,160 +3,277 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Player 2: Your Move</title>
+<title>Your Move, Player 2</title>
+
 <style>
-body{
+@font-face {
+  font-family: "ArcadeClassic";
+  src: url("fonts/ArcadeClassic.woff2") format("woff2"),
+       url("fonts/ArcadeClassic.woff") format("woff");
+}
+
+body {
   margin:0;
-  font-family:'Press Start 2P', cursive;
-  background:radial-gradient(circle at center,#ff00c8 0%,#ff7a00 40%,#111 80%);
+  height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
-  min-height:100vh;
-}
-.grid{
-  position:fixed;
-  bottom:0;
-  width:200%;
-  height:60%;
-  background:
-    linear-gradient(to right, limegreen 1px, transparent 1px),
-    linear-gradient(to top, limegreen 1px, transparent 1px);
-  background-size:40px 40px;
-  transform:perspective(400px) rotateX(60deg);
-  animation:moveGrid 6s linear infinite;
-  opacity:0.4;
-  z-index:0;
-}
-@keyframes moveGrid{
-  from{background-position:0 0;}
-  to{background-position:0 40px;}
-}
-.arcade{
   background:black;
-  border:6px solid limegreen;
-  padding:20px;
-  text-align:center;
-  max-width:480px;
-  width:90vw;
+  font-family:"ArcadeClassic", monospace;
   color:white;
-  position:relative;
-  z-index:1;
+  overflow:hidden;
 }
-h1{font-size:20px;color:#ff7a00;text-shadow:3px 3px limegreen;margin-bottom:20px;}
-button{
-  display:block;
-  width:100%;
-  padding:16px;
-  margin:10px 0;
-  font-family:'Press Start 2P', cursive;
-  font-size:16px;
-  border:4px solid #ff7a00;
-  background:black;
-  color:limegreen;
-  cursor:pointer;
-  border-radius:4px;
-}
-button:hover{background:limegreen;color:black;}
-.hidden{display:none;}
-.score{color:#ff7a00;margin:12px 0;font-size:18px;}
-.overlay{
-  position:absolute;
+
+/* CRT Flicker */
+body::after{
+  content:"";
+  position:fixed;
   top:0; left:0;
   width:100%; height:100%;
-  background:black;
-  border:6px solid limegreen;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.03),
+    rgba(255,255,255,0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events:none;
+}
+
+.container {
+  width:95vw;
+  max-width:520px;
+  height:92vh;
+  border:6px solid lime;
+  box-shadow:0 0 20px lime;
+  padding:20px;
+  text-align:center;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  z-index:2;
-  padding:20px;
+  background:black;
 }
-.overlay button{width:70%; margin-top:10px;}
-.pixel-man{
-  width:64px;
-  height:64px;
-  margin:20px auto;
-  background:url('images/pixel-man.png') no-repeat center/contain;
-  transition:transform 0.3s ease;
+
+.hidden { display:none; }
+
+h1 { font-size:30px; margin-bottom:20px; }
+
+/* Buttons */
+button {
+  width:100%;
+  margin:8px 0;
+  padding:12px;
+  background:black;
+  border:3px solid #ff7a00;
+  color:lime;
+  font-family:"ArcadeClassic", monospace;
+  cursor:pointer;
 }
-@media screen and (max-width:480px){
-  h1{font-size:18px;}
-  button{font-size:18px;padding:18px;}
-  .score{font-size:20px;}
-  .pixel-man{width:48px;height:48px;}
+
+button:hover {
+  background:lime;
+  color:black;
+}
+
+/* Score Meter */
+.meter-container {
+  width:100%;
+  height:20px;
+  border:2px solid #ff7a00;
+  margin-bottom:15px;
+}
+
+.meter-bar {
+  height:100%;
+  width:0%;
+  background:lime;
+  transition:0.3s;
+}
+
+.score-number {
+  margin-bottom:10px;
+  color:#ff7a00;
+}
+
+/* Ticker */
+.ticker {
+  margin:20px 0;
+  padding:15px;
+  border:2px solid lime;
+  min-height:40px;
+}
+
+.result {
+  margin-top:20px;
+  padding:15px;
+  border:2px solid lime;
+}
+
+/* GAME OVER */
+.gameover {
+  font-size:26px;
+  color:red;
+  animation:blink 1s infinite;
+}
+
+@keyframes blink {
+  50% {opacity:0.2;}
 }
 </style>
 </head>
 <body>
 
-<div class="grid"></div>
+<audio id="bgMusic" loop>
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3">
+</audio>
 
-<div class="arcade">
+<audio id="lockSound">
+  <source src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3">
+</audio>
 
-  <!-- START SCREEN -->
-  <div id="startScreen">
-    <h1>PLAYER 2: YOUR MOVE</h1>
-    <button onclick="startGame()">START GAME</button>
+<div class="container">
+
+<!-- START -->
+<div id="startScreen">
+  <h1>YOUR MOVE, PLAYER 2</h1>
+  <p>INSERT COIN</p>
+  <button onclick="startGame()">START GAME</button>
+</div>
+
+<!-- MAIN -->
+<div id="mainScreen" class="hidden">
+  <h1>INCREASE POINTS!</h1>
+
+  <div class="score-number">Score: <span id="score">0</span>/100</div>
+  <div class="meter-container">
+    <div id="meterBar" class="meter-bar"></div>
   </div>
 
-  <!-- GAME SCREEN -->
-  <div id="gameScreen" class="hidden">
-    <h1>TALKING STAGE ACTIVE</h1>
-    <div class="score">Score: <span id="score">0</span>/100</div>
-    <div class="pixel-man" id="pixelMan"></div>
-    <button onclick="playerAction('complimentOverlay')">GIVE COMPLIMENT</button>
-    <button onclick="playerAction('questionOverlay')">ASK QUESTION</button>
-    <button onclick="planDate()">PLAN DATE</button>
+  <button onclick="losePoints()">OH NO, THE CONVO DIED</button>
+  <button onclick="goTo('complimentScreen')">GIVE A COMPLIMENT</button>
+  <button onclick="addScore(20)">PLAN A DATE</button>
+  <button onclick="resetGame()">END GAME</button>
+</div>
+
+<!-- CONVO DIED -->
+<div id="deadScreen" class="hidden">
+  <h1>ASK ABOUT...</h1>
+  <button onclick="generateTicker()">CLICK TO GENERATE</button>
+  <div class="ticker" id="tickerBox">---</div>
+  <button onclick="goTo('mainScreen')">BACK</button>
+</div>
+
+<!-- COMPLIMENT -->
+<div id="complimentScreen" class="hidden">
+  <h1>COMPLIMENT HER ON...</h1>
+  <button onclick="showCompliments()">CLICK</button>
+
+  <div id="complimentOptions" class="hidden">
+    <button onclick="randomCompliment('personality')">PERSONALITY</button>
+    <button onclick="randomCompliment('appearance')">APPEARANCE</button>
+    <button onclick="randomCompliment('banter')">BANTER</button>
   </div>
 
-  <!-- COMPLIMENT OVERLAY -->
-  <div id="complimentOverlay" class="overlay hidden">
-    <h2>Give Compliment</h2>
-    <p>1. I like your brain.</p>
-    <p>2. You looked great.</p>
-    <button onclick="addScoreAndClose(20,'complimentOverlay')">[Compliment given]</button>
-    <button onclick="closeOverlay('complimentOverlay')">BACK</button>
-  </div>
+  <div id="complimentResult" class="result hidden"></div>
+  <button onclick="goTo('mainScreen')">BACK</button>
+</div>
 
-  <!-- QUESTION OVERLAY -->
-  <div id="questionOverlay" class="overlay hidden">
-    <h2>Ask Question</h2>
-    <p>1. How was your weekend?</p>
-    <p>2. Do you want to go on a date soon?</p>
-    <button onclick="addScoreAndClose(20,'questionOverlay')">[Question asked]</button>
-    <button onclick="closeOverlay('questionOverlay')">BACK</button>
-  </div>
+<!-- GAME OVER -->
+<div id="gameOverScreen" class="hidden">
+  <div class="gameover">GAME OVER</div>
+  <button onclick="resetGame()">TRY AGAIN</button>
+</div>
 
 </div>
 
-<audio id="coinSound" src="audio/coin.mp3"></audio>
-<audio id="wahooSound" src="audio/wahoo.mp3"></audio>
-<audio id="bgMusic" src="audio/bgMusic.mp3" loop></audio>
-
 <script>
-let score=0;
-const bgMusic = document.getElementById('bgMusic');
-const pixelMan = document.getElementById('pixelMan');
+let score = 0;
 
 function startGame(){
-  document.getElementById('startScreen').classList.add('hidden');
-  document.getElementById('gameScreen').classList.remove('hidden');
-  bgMusic.volume=0.2;
-  bgMusic.play().catch(()=>{});
-  document.getElementById('coinSound').play();
+  document.getElementById("bgMusic").play();
+  goTo('mainScreen');
 }
 
-function playWahoo(){ const a=document.getElementById('wahooSound'); a.currentTime=0; a.play(); }
-function walkMan(){ pixelMan.style.transform="translateY(-5px) translateX(5px)"; setTimeout(()=>{pixelMan.style.transform="translateY(0) translateX(0)";},300); }
+function goTo(screen){
+  document.querySelectorAll('.container > div').forEach(div=>{
+    div.classList.add('hidden');
+  });
+  document.getElementById(screen).classList.remove('hidden');
+}
 
-function playerAction(overlayId){ playWahoo(); walkMan(); openOverlay(overlayId); }
-function planDate(){ score+=30;if(score>100)score=100;document.getElementById('score').innerText=score; playWahoo(); walkMan(); }
+function updateMeter(){
+  document.getElementById("score").innerText = score;
+  document.getElementById("meterBar").style.width = score + "%";
+  if(score <= 0){
+    goTo('gameOverScreen');
+  }
+}
 
-function openOverlay(id){ document.getElementById(id).classList.remove('hidden'); }
-function closeOverlay(id){ document.getElementById(id).classList.add('hidden'); }
-function addScoreAndClose(points,id){ score+=points;if(score>100)score=100;document.getElementById('score').innerText=score; closeOverlay(id);}
+function addScore(points){
+  score += points;
+  if(score > 100) score = 100;
+  updateMeter();
+}
+
+function losePoints(){
+  score -= 20;
+  if(score < 0) score = 0;
+  goTo('deadScreen');
+  updateMeter();
+}
+
+/* TICKER */
+const convoTopics = [
+  "Her zodiac sign",
+  "Her favourite cocktail",
+  "What suburb she lives in",
+  "A movie she watched recently",
+  "Her favourite emoji at work",
+  "Her favourite meal to cook"
+];
+
+function generateTicker(){
+  let ticker = document.getElementById("tickerBox");
+  let i = 0;
+  let spin = setInterval(()=>{
+    ticker.innerText = convoTopics[Math.floor(Math.random()*convoTopics.length)];
+    i++;
+    if(i>15){
+      clearInterval(spin);
+      document.getElementById("lockSound").play();
+      addScore(10);
+    }
+  },100);
+}
+
+/* COMPLIMENTS */
+const compliments = {
+  personality:["You're thoughtful.","You’re emotionally intelligent.","You have depth.","You’re grounded.","You’re calm.","You’re confident.","You’re kind.","You’re perceptive.","You listen well.","You’re authentic."],
+  appearance:["You have a great smile.","You look incredible.","Your style suits you.","Your eyes stand out.","You glow.","You look powerful.","You dress well.","You’re radiant.","You look sharp.","You carry yourself well."],
+  banter:["You’re witty.","You flirt well.","You’re playful.","You’re quick.","You match energy.","You escalate perfectly.","You’re charming.","You’re sharp.","You’re smooth.","You’re funny."]
+};
+
+function showCompliments(){
+  document.getElementById("complimentOptions").classList.remove("hidden");
+}
+
+function randomCompliment(type){
+  let list = compliments[type];
+  let result = list[Math.floor(Math.random()*list.length)];
+  let box = document.getElementById("complimentResult");
+  box.innerText = result;
+  box.classList.remove("hidden");
+  document.getElementById("lockSound").play();
+  addScore(10);
+}
+
+function resetGame(){
+  score = 0;
+  updateMeter();
+  goTo('startScreen');
+}
 </script>
+
 </body>
 </html>
