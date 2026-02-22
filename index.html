@@ -45,26 +45,24 @@ body::after{
 
 /* Container */
 .container{
-  width:90vw; max-width:400px; height:70vh; border:6px solid #00fff7; box-shadow:0 0 25px #ff00c8; 
+  width:90vw; max-width:400px; height:80vh; border:6px solid #00fff7; box-shadow:0 0 25px #ff00c8; 
   background:black;
-  padding:20px; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative;
-  z-index:2;
+  padding:20px; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:2;
 }
 @media(max-width:600px){
-  .container{width:95vw; height:60vh;}
+  .container{width:95vw; height:70vh;}
 }
 
 /* Hidden elements */
 .hidden{display:none;}
 
 /* Typography */
-h1,h2{color:#ff00c8; margin-bottom:10px; text-align:center;}
-p{color:#00fff7; margin-bottom:10px; text-align:center;}
+h1,h2{color:#ff00c8;}
+p{color:#00fff7;}
 
 /* Buttons consistent width */
 button{
   width:90%; max-width:300px; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;
-  flex-shrink:0;
 }
 button:hover{background:#00fff7;color:black;}
 
@@ -95,7 +93,7 @@ button:hover{background:#00fff7;color:black;}
 
 /* Celebration text bounce */
 .celebration-text{
-  position:absolute; top:10%; left:50%; transform:translateX(-50%); 
+  position:absolute; top:20%; left:50%; transform:translateX(-50%); 
   font-size:36px; color:yellow; text-shadow:0 0 10px #fff; animation:bounce 0.8s forwards;
 }
 @keyframes bounce{
@@ -108,15 +106,8 @@ button:hover{background:#00fff7;color:black;}
 .confetti-piece{position:absolute; top:0; width:6px; height:10px; opacity:0.9; animation:fall 1s linear forwards;}
 @keyframes fall{0%{transform:translateY(0px) rotate(0deg);}100%{transform:translateY(120px) rotate(360deg);}
 
-/* Start again text at bottom */
-.start-again{
-  color:#00ff00;
-  font-size:12px;
-  position:absolute;
-  bottom:10px;
-  text-align:center;
-  width:100%;
-}
+/* Green start again text */
+.start-again{color:#00ff00; font-size:14px; margin-top:5px;}
 </style>
 </head>
 <body>
@@ -136,11 +127,11 @@ button:hover{background:#00fff7;color:black;}
 <h1>AVOID WIPEOUT</h1>
 <p>Choose your move to score points</p>
 <div class="score-number">Score: <span id="score">0</span>/100</div>
+<p class="start-again">start again</p>
 <button onclick="goTo('deadScreen')">OH NO, THE CONVO DIED</button>
 <button onclick="goTo('complimentScreen')">GIVE A COMPLIMENT</button>
 <button onclick="goTo('planScreen')">PLAN A DATE</button>
 <button onclick="endGame()">END GAME</button>
-<p class="start-again">start again</p>
 </div>
 
 <!-- DEAD SCREEN -->
@@ -148,8 +139,8 @@ button:hover{background:#00fff7;color:black;}
 <h1>ASK THEM ABOUT</h1>
 <div class="score-number">Score: <span id="scoreDead">0</span>/100</div>
 <div class="ticker" id="tickerBox">---</div>
-<button onclick="goAgain('tickerBox','scoreDead')">GO AGAIN</button>
 <button onclick="goTo('mainScreen')">BACK</button>
+<button onclick="goAgain('tickerBox','scoreDead')">GO AGAIN</button>
 </div>
 
 <!-- COMPLIMENT SCREEN -->
@@ -157,8 +148,8 @@ button:hover{background:#00fff7;color:black;}
 <h1>GIVE A COMPLIMENT</h1>
 <div class="score-number">Score: <span id="scoreCompliment">0</span>/100</div>
 <div class="ticker" id="complimentTicker">---</div>
-<button onclick="goAgain('complimentTicker','scoreCompliment')">GO AGAIN</button>
 <button onclick="goTo('mainScreen')">BACK</button>
+<button onclick="goAgain('complimentTicker','scoreCompliment')">GO AGAIN</button>
 </div>
 
 <!-- PLAN SCREEN -->
@@ -166,8 +157,8 @@ button:hover{background:#00fff7;color:black;}
 <h1>PLAN A DATE</h1>
 <div class="score-number">Score: <span id="scorePlan">0</span>/100</div>
 <div class="ticker" id="planTicker">---</div>
-<button onclick="goAgain('planTicker','scorePlan')">GO AGAIN</button>
 <button onclick="goTo('mainScreen')">BACK</button>
+<button onclick="goAgain('planTicker','scorePlan')">GO AGAIN</button>
 </div>
 
 <!-- AUDIO -->
@@ -176,6 +167,7 @@ button:hover{background:#00fff7;color:black;}
 <script>
 let score = 0;
 
+// Navigation
 function startGame(){
     score = 0;
     updateAllScores();
@@ -186,22 +178,26 @@ function goTo(screen){
     document.querySelectorAll('.container > div').forEach(d=>d.classList.add('hidden'));
     document.getElementById(screen).classList.remove('hidden');
 
+    // Clear previous results when entering randomizer screens
     if(screen==='deadScreen') resetTicker('tickerBox','scoreDead');
     if(screen==='complimentScreen') resetTicker('complimentTicker','scoreCompliment');
     if(screen==='planScreen') resetTicker('planTicker','scorePlan');
 }
 
+// Reset ticker display
 function resetTicker(tickerId, scoreId){
     document.getElementById(tickerId).innerText="---";
     document.getElementById(scoreId).innerText=score;
     runSlot(tickerId, scoreId);
 }
 
+// GO AGAIN clears and starts
 function goAgain(tickerId, scoreId){
     document.getElementById(tickerId).innerText="---";
     runSlot(tickerId, scoreId);
 }
 
+// Update all score displays
 function updateAllScores(){
     document.getElementById("score").innerText = score;
     document.getElementById("scoreDead").innerText = score;
@@ -209,16 +205,17 @@ function updateAllScores(){
     document.getElementById("scorePlan").innerText = score;
 }
 
+// Randomizer
 function runSlot(tickerId, scoreId){
     const tickers = {
-        'tickerBox': ["Favourite secret snack","Zodiac sign","Go-to karaoke song","Most hated email sign-off","Favourite holiday","Music they're listening to","How others describe their eye colour","Favourite colour to wear","Film they enjoyed recently","Overrated/underrated thing"],
-        'complimentTicker': ["Your memes are top-tier.","I respect your coffee order.","Your Spotify playlists are excellent.","You're the most interesting person on here.","You're like a walking good mood.","You have perfect snack taste.","You'd be really fun on a date.","Your eyes are so pretty.","You're really funny.","You're witty AF."],
+        'tickerBox': ["Favourite secret snack","Zodiac sign","Go-to karaoke song","Most hated email sign-off","Favourite holiday","Music they're listening to","How others describe their eye colour","Favourite colour to wear","Film they enjoyed recently","Overrated/underrated thing","Your coffee order"],
+        'complimentTicker': ["Your memes are top-tier.","That's a great coffee order.","Your Spotify playlists are great.","You have great taste.","You're the most interesting person on here.","You have a great laugh.","You're like a walking good mood.","You have perfect snack taste.","You'd be really fun on a date.","Your eyes are so pretty.","You're really funny.","You're witty AF."],
         'planTicker': ["Beach day","Stroll through gardens","Watch a movie","Night in & cook","Cocktails & bar","Pub trivia showdown","Pool game","Arcade showdown","Art gallery"]
     };
     const ticker = document.getElementById(tickerId);
     const scoreDisplay = document.getElementById(scoreId);
     let spins = 0;
-    let totalSpins = 15 + Math.floor(Math.random()*10);
+    let totalSpins = 30 + Math.floor(Math.random()*10); // slower
     const interval = setInterval(()=>{
         ticker.innerText = tickers[tickerId][Math.floor(Math.random()*tickers[tickerId].length)];
         spins++;
@@ -227,19 +224,23 @@ function runSlot(tickerId, scoreId){
             score += 20;
             if(score>100) score=100;
             updateAllScores();
+
             scoreDisplay.classList.add('glow');
             setTimeout(()=>scoreDisplay.classList.remove('glow'),500);
             showNice();
+
             const sound = document.getElementById("lockSound");
             sound.volume = 0.5;
             sound.currentTime = 0;
             sound.play();
+
             if(score===50) showCelebration("Wahoo!", true);
             if(score===100) showCelebration("MAX SCORE!", false);
         }
-    },100);
+    },40); // slower
 }
 
+// Nice popup
 function showNice(){
     const nice = document.createElement("div");
     nice.className="nice-text";
@@ -248,24 +249,41 @@ function showNice(){
     setTimeout(()=>nice.remove(),800);
 }
 
+// Celebration
 function showCelebration(text, mini){
     const elem = document.createElement("div");
     elem.className="celebration-text";
     elem.innerText=text;
     document.body.appendChild(elem);
     setTimeout(()=>elem.remove(),1200);
+    if(mini) showMiniConfetti(); else showConfetti();
+}
 
-    if(!mini){
-        setTimeout(()=>{
-            window.open(
-                'https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1',
-                '_blank',
-                'width=800,height=600,autoplay=1'
-            );
-        }, 500);
+// Confetti
+function showMiniConfetti(){
+    for(let i=0;i<20;i++){
+        const confetti = document.createElement("div");
+        confetti.className="confetti-piece";
+        confetti.style.left=Math.random()*100+"%";
+        confetti.style.backgroundColor=`hsl(${Math.random()*360},100%,50%)`;
+        confetti.style.width="4px"; confetti.style.height="6px";
+        document.body.appendChild(confetti);
+        setTimeout(()=>confetti.remove(),1000);
+    }
+}
+function showConfetti(){
+    for(let i=0;i<50;i++){
+        const confetti = document.createElement("div");
+        confetti.className="confetti-piece";
+        confetti.style.left=Math.random()*100+"%";
+        confetti.style.backgroundColor=`hsl(${Math.random()*360},100%,50%)`;
+        confetti.style.width="6px"; confetti.style.height="10px";
+        document.body.appendChild(confetti);
+        setTimeout(()=>confetti.remove(),1500);
     }
 }
 
+// End game
 function endGame(){
     window.open('https://www.wikihow.com/Be-Single-and-Happy','_blank','width=800,height=600');
 }
