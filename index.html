@@ -225,10 +225,13 @@ button:hover{
 </div>
 
 <script>
-let score=0;
-let combo=1;
-let highScore=localStorage.getItem("highScore")||0;
-document.getElementById("highScore").innerText=highScore;
+let score = 0;
+let combo = 1;
+let highScore = localStorage.getItem("highScore") || 0;
+document.getElementById("highScore").innerText = highScore;
+
+// Compliment ticker interval
+let complimentInterval;
 
 function startGame(){
   document.getElementById("coinSound").play();
@@ -241,40 +244,41 @@ function goTo(screen){
     div.classList.add('hidden');
   });
   document.getElementById(screen).classList.remove('hidden');
-  if(screen==='complimentScreen') showComplimentTicker();
+
+  if(screen === 'complimentScreen'){
+    showComplimentTicker();
+  } else {
+    stopComplimentTicker();
+  }
 }
 
 function updateMeter(){
-  document.getElementById("score").innerText=score;
-  document.getElementById("combo").innerText=combo;
-  document.getElementById("meterBar").style.width=score+"%";
+  document.getElementById("score").innerText = score;
+  document.getElementById("combo").innerText = combo;
+  document.getElementById("meterBar").style.width = score + "%";
 
-  if(score>=50){
-    showLevelUp();
+  if(score >= 50) showLevelUp();
+
+  if(score > highScore){
+    highScore = score;
+    localStorage.setItem("highScore", highScore);
+    document.getElementById("highScore").innerText = highScore;
   }
 
-  if(score>highScore){
-    highScore=score;
-    localStorage.setItem("highScore",highScore);
-    document.getElementById("highScore").innerText=highScore;
-  }
-
-  if(score<=0){
-    goTo('gameOverScreen');
-  }
+  if(score <= 0) goTo('gameOverScreen');
 }
 
 function addScore(points){
-  score+=points*combo;
-  if(score>100)score=100;
+  score += points * combo;
+  if(score > 100) score = 100;
   combo++;
   updateMeter();
 }
 
 function convoDied(){
-  score-=20;
-  combo=1;
-  if(score<0)score=0;
+  score -= 20;
+  combo = 1;
+  if(score < 0) score = 0;
   explode();
   updateMeter();
   goTo('deadScreen');
@@ -282,22 +286,22 @@ function convoDied(){
 
 function explode(){
   document.getElementById("explodeSound").play();
-  let boom=document.createElement("div");
-  boom.className="explosion";
-  boom.innerText="💥";
+  let boom = document.createElement("div");
+  boom.className = "explosion";
+  boom.innerText = "💥";
   document.body.appendChild(boom);
   setTimeout(()=>{boom.remove();},600);
 }
 
 function showLevelUp(){
-  let lvl=document.createElement("div");
-  lvl.className="level-up";
-  lvl.innerText="LEVEL UP!";
+  let lvl = document.createElement("div");
+  lvl.className = "level-up";
+  lvl.innerText = "LEVEL UP!";
   document.body.appendChild(lvl);
   setTimeout(()=>{lvl.remove();},1500);
 }
 
-const convoTopics=[
+const convoTopics = [
   "Her zodiac sign",
   "Her favourite cocktail",
   "What suburb she lives in",
@@ -307,12 +311,12 @@ const convoTopics=[
 ];
 
 function generateTicker(){
-  let ticker=document.getElementById("tickerBox");
-  let i=0;
-  let spin=setInterval(()=>{
-    ticker.innerText=convoTopics[Math.floor(Math.random()*convoTopics.length)];
+  let ticker = document.getElementById("tickerBox");
+  let i = 0;
+  let spin = setInterval(()=>{
+    ticker.innerText = convoTopics[Math.floor(Math.random() * convoTopics.length)];
     i++;
-    if(i>15){
+    if(i > 15){
       clearInterval(spin);
       document.getElementById("lockSound").play();
       addScore(10);
@@ -320,7 +324,7 @@ function generateTicker(){
   },100);
 }
 
-const complimentTopics=[
+const complimentTopics = [
   "You're looking amazing today.",
   "Love your energy!",
   "You're dangerously charming.",
@@ -331,30 +335,30 @@ const complimentTopics=[
 const complimentThumbnails = ["💖","🌟","🔥","✨","💎"];
 
 function showComplimentTicker(){
-  let ticker=document.getElementById("complimentBox");
-  let thumbnail=document.getElementById("complimentThumbnail");
-  let i=0;
-  let spin=setInterval(()=>{
-    let index=Math.floor(Math.random()*complimentTopics.length);
-    ticker.innerText=complimentTopics[index];
-    thumbnail.innerText=complimentThumbnails[index];
-    i++;
-    if(i>10){
-      clearInterval(spin);
-      document.getElementById("lockSound").play();
-      addScore(10);
-    }
-  },100);
+  const ticker = document.getElementById("complimentBox");
+  const thumbnail = document.getElementById("complimentThumbnail");
+
+  if(complimentInterval) clearInterval(complimentInterval);
+
+  complimentInterval = setInterval(()=>{
+    const index = Math.floor(Math.random() * complimentTopics.length);
+    ticker.innerText = complimentTopics[index];
+    thumbnail.innerText = complimentThumbnails[index];
+  }, 200); // updates every 0.2s
+}
+
+function stopComplimentTicker(){
+  if(complimentInterval) clearInterval(complimentInterval);
 }
 
 function planDate(){
-  addScore(15); // reward points for planning
+  addScore(15); // reward points
   window.open("https://www.google.com/maps/search/dates+near+me/","_blank");
 }
 
 function resetGame(){
-  score=0;
-  combo=1;
+  score = 0;
+  combo = 1;
   updateMeter();
   goTo('startScreen');
 }
