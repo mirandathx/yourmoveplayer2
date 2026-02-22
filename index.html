@@ -61,6 +61,7 @@ p{color:#00fff7;}
 button{width:100%; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;}
 button:hover{background:#00fff7;color:black;}
 .score-number{color:#ff7a00;margin:6px; font-size:18px;}
+.score-number.glow{text-shadow:0 0 15px orange; transition:0.3s;}
 .ticker{border:2px solid #00fff7; padding:15px; margin:15px 0; min-height:40px; color:#00ff88;}
 .nice-text{
   position:relative;
@@ -102,7 +103,7 @@ button:hover{background:#00fff7;color:black;}
 <!-- DEAD SCREEN -->
 <div id="deadScreen" class="hidden">
 <h1>ASK ABOUT...</h1>
-<button id="generateTickerBtn">CLICK TO GENERATE</button>
+<div class="score-number">Score: <span id="scoreDead">0</span>/100</div>
 <div class="ticker" id="tickerBox">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
@@ -110,7 +111,7 @@ button:hover{background:#00fff7;color:black;}
 <!-- COMPLIMENT SCREEN -->
 <div id="complimentScreen" class="hidden">
 <h1>GIVE A COMPLIMENT</h1>
-<button id="generateComplimentBtn">CLICK TO GENERATE</button>
+<div class="score-number">Score: <span id="scoreCompliment">0</span>/100</div>
 <div class="ticker" id="complimentTicker">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
@@ -118,7 +119,7 @@ button:hover{background:#00fff7;color:black;}
 <!-- PLAN SCREEN -->
 <div id="planScreen" class="hidden">
 <h1>PLAN A DATE...</h1>
-<button id="generatePlanBtn">CLICK TO GENERATE</button>
+<div class="score-number">Score: <span id="scorePlan">0</span>/100</div>
 <div class="ticker" id="planTicker">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
@@ -130,25 +131,57 @@ button:hover{background:#00fff7;color:black;}
 // Game state
 let score = 0;
 
+// Navigation
 function startGame(){
     score = 0;
-    updateScore();
+    updateMainScore();
     goTo('mainScreen');
 }
 
 function goTo(screen){
     document.querySelectorAll('.container > div').forEach(d=>d.classList.add('hidden'));
     document.getElementById(screen).classList.remove('hidden');
+
+    // Auto-run randomizer when entering these screens
+    if(screen === 'deadScreen') runRandomizer('tickerBox', 'scoreDead');
+    if(screen === 'complimentScreen') runRandomizer('complimentTicker', 'scoreCompliment');
+    if(screen === 'planScreen') runRandomizer('planTicker', 'scorePlan');
 }
 
-function updateScore(){
-    document.getElementById("score").innerText = score;
-}
+// Update main screen score
+function updateMainScore(){ document.getElementById("score").innerText = score; }
 
-function addScore(points){
-    score += points;
-    if(score > 100) score = 100;
-    updateScore();
+// Generic function to run a randomizer on a ticker element
+function runRandomizer(tickerId, scoreId){
+    const tickers = {
+        'tickerBox': ["Zodiac sign","Favourite cocktail","Suburb they live in","A movie they watched recently","Favourite emoji at work","Favourite meal to cook"],
+        'complimentTicker': ["You look great today.","Love their energy!","They're so interesting.","I love that photo.","Great taste in music.","So funny!"],
+        'planTicker': ["Beach day","Stroll through the gardens","Watch a movie","Night in and cook","Cocktails and bar","Pub trivia","A game of pool","An arcade"]
+    };
+    const ticker = document.getElementById(tickerId);
+    const scoreDisplay = document.getElementById(scoreId);
+    let i=0;
+    const interval = setInterval(()=>{
+        ticker.innerText = tickers[tickerId][Math.floor(Math.random()*tickers[tickerId].length)];
+        i++;
+        if(i>15){
+            clearInterval(interval);
+            // Increment score
+            score += 10;
+            if(score > 100) score = 100;
+            scoreDisplay.innerText = score;
+
+            // Glow effect
+            scoreDisplay.classList.add('glow');
+            setTimeout(()=>scoreDisplay.classList.remove('glow'), 500);
+
+            // Play lock sound
+            document.getElementById("lockSound").play();
+
+            // Show nice popup
+            showNice();
+        }
+    },100);
 }
 
 // Glow + "nice" text effect
@@ -160,58 +193,10 @@ function showNice(){
     setTimeout(()=>nice.remove(), 800);
 }
 
-// DEAD SCREEN RANDOMIZER
-const convoTopics = ["Zodiac sign","Favourite cocktail","Suburb they live in","A movie they watched recently","Favourite emoji at work","Favourite meal to cook"];
-document.getElementById("generateTickerBtn").addEventListener("click", ()=>{
-    let i=0; const ticker = document.getElementById("tickerBox");
-    const interval = setInterval(()=>{
-        ticker.innerText = convoTopics[Math.floor(Math.random()*convoTopics.length)];
-        i++; 
-        if(i>15){ 
-            clearInterval(interval); 
-            addScore(10); 
-            document.getElementById("lockSound").play();
-            showNice();
-        }
-    },100);
-});
-
-// COMPLIMENT SCREEN RANDOMIZER
-const compliments=["You look great today.","Love your energy!","You're so interesting.","I love that photo.","You have great taste in music.","You're so funny!", "You'd be great fun on a date"];
-document.getElementById("generateComplimentBtn").addEventListener("click", ()=>{
-    let i=0; const ticker = document.getElementById("complimentTicker");
-    const interval = setInterval(()=>{
-        ticker.innerText = compliments[Math.floor(Math.random()*compliments.length)];
-        i++; 
-        if(i>15){ 
-            clearInterval(interval); 
-            addScore(10); 
-            document.getElementById("lockSound").play();
-            showNice();
-        }
-    },100);
-});
-
-// PLAN SCREEN RANDOMIZER
-const plans=["Beach day","Stroll through the gardens","Art gallery","Watch a movie","Night in and cook","Cocktails and bar","Pub trivia","A game of pool","An arcade"];
-document.getElementById("generatePlanBtn").addEventListener("click", ()=>{
-    let i=0; const ticker = document.getElementById("planTicker");
-    const interval = setInterval(()=>{
-        ticker.innerText = plans[Math.floor(Math.random()*plans.length)];
-        i++; 
-        if(i>15){ 
-            clearInterval(interval); 
-            addScore(10); 
-            document.getElementById("lockSound").play();
-            showNice();
-        }
-    },100);
-});
-
-// Reset to start screen
+// Reset to start
 function resetGame(){
     score = 0;
-    updateScore();
+    updateMainScore();
     goTo('startScreen');
 }
 </script>
