@@ -61,6 +61,12 @@ button:hover{background:#00fff7;color:black;}
 @keyframes blink{50%{opacity:0;}}
 .explosion{position:absolute; font-size:40px; animation:boom 0.6s forwards;}
 @keyframes boom{0%{transform:scale(0);}50%{transform:scale(1.4);}100%{transform:scale(0);}}
+.coin{position:absolute; font-size:40px; animation:coinJump 0.8s forwards;}
+@keyframes coinJump{0%{transform:translateY(50px) scale(0);}50%{transform:translateY(-30px) scale(1.2);}100%{transform:translateY(0) scale(1);}}
+.win{position:absolute; font-size:50px; color:yellow; animation:winPop 0.8s forwards; text-shadow:0 0 10px #fff;}
+@keyframes winPop{0%{transform:scale(0);}50%{transform:scale(1.5);}100%{transform:scale(1);}}
+.win-text{position:absolute; top:60%; font-size:20px; color:#00ff88; animation:winTextFade 0.8s forwards; text-shadow:0 0 10px #0ff;}
+@keyframes winTextFade{0%{opacity:0;}50%{opacity:1;}100%{opacity:1;}}
 </style>
 </head>
 <body>
@@ -99,7 +105,7 @@ button:hover{background:#00fff7;color:black;}
 <!-- DEAD SCREEN -->
 <div id="deadScreen" class="hidden">
 <h1>ASK ABOUT...</h1>
-<button onclick="generateTicker()">CLICK TO GENERATE</button>
+<button id="generateTickerBtn">CLICK TO GENERATE</button>
 <div class="ticker" id="tickerBox">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
@@ -124,28 +130,37 @@ document.getElementById("highScore").innerText = highScore;
 // Game functions
 function startGame(){
     document.getElementById("coinSound").play();
+    showCoin();
     document.getElementById("bgMusic").play();
     goTo('mainScreen');
+}
+
+function showCoin(){
+    let coin = document.createElement("div");
+    coin.className="coin";
+    coin.innerText="🪙"; // 8-bit coin
+    coin.style.left = "50%";
+    coin.style.top = "50%";
+    coin.style.transform = "translate(-50%,0)";
+    document.body.appendChild(coin);
+    setTimeout(()=>coin.remove(),800);
 }
 
 function goTo(screen){
     document.querySelectorAll('.container > div').forEach(d=>d.classList.add('hidden'));
     document.getElementById(screen).classList.remove('hidden');
-    clearComplimentInterval(); // stop compliment ticker if leaving screen
+    clearComplimentInterval();
 }
 
-// updateMeter now has a skipGameOver flag
 function updateMeter(skipGameOver=false){
     document.getElementById("score").innerText = score;
     document.getElementById("combo").innerText = combo;
     document.getElementById("meterBar").style.width = score + "%";
-
     if(score > highScore){
         highScore = score;
         localStorage.setItem("highScore", highScore);
         document.getElementById("highScore").innerText = highScore;
     }
-
     if(!skipGameOver && score <= 0){
         goTo('gameOverScreen');
     }
@@ -163,7 +178,7 @@ function convoDied(){
     combo = 1;
     if(score < 0) score = 0;
     explode();
-    updateMeter(true); // skip automatic game over
+    updateMeter(true);
     goTo('deadScreen');
 }
 
@@ -199,11 +214,12 @@ function generateTicker(){
             clearInterval(spin);
             document.getElementById("lockSound").play();
             addScore(10);
+            showWin(); // WIN popup for Ask About
         }
     },100);
 }
 
-// COMPLIMENT TICKER
+// COMPLIMENT TICKER + WIN
 const compliments=["You look amazing today.","Love your energy!","You're so interesting.","I love that photo of you.","You have great taste in music."];
 let complimentInterval=null;
 function clearComplimentInterval(){if(complimentInterval){clearInterval(complimentInterval);complimentInterval=null;}}
@@ -219,10 +235,32 @@ function generateComplimentTicker(){
             clearComplimentInterval();
             document.getElementById("lockSound").play();
             addScore(10);
+            showWin();
         }
     },100);
 }
 document.getElementById("generateComplimentBtn").addEventListener("click", generateComplimentTicker);
+document.getElementById("generateTickerBtn").addEventListener("click", generateTicker);
+
+// WIN popup function
+function showWin(){
+    let win = document.createElement("div");
+    win.className="win";
+    win.innerText="WIN!";
+    win.style.left="50%";
+    win.style.top="40%";
+    win.style.transform="translate(-50%,0)";
+    document.body.appendChild(win);
+
+    let text = document.createElement("div");
+    text.className="win-text";
+    text.innerText="nice";
+    text.style.left="50%";
+    text.style.transform="translate(-50%,0)";
+    document.body.appendChild(text);
+
+    setTimeout(()=>{win.remove(); text.remove();},800);
+}
 </script>
 </body>
 </html>
