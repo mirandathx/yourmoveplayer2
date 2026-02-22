@@ -18,10 +18,11 @@ body {
   display:flex;
   justify-content:center;
   align-items:center;
-  background:black;
+  background: radial-gradient(circle at center, #1a1a1a, #000000);
   font-family:"ArcadeClassic", monospace;
-  color:white;
+  color:#fff;
   overflow:hidden;
+  text-shadow: 0 0 4px #ff6fff, 0 0 8px #6fffd8;
 }
 
 /* CRT Flicker */
@@ -44,20 +45,21 @@ body::after{
   width:95vw;
   max-width:520px;
   height:92vh;
-  border:6px solid lime;
-  box-shadow:0 0 20px lime;
+  border:6px solid #ff6fff;
+  box-shadow:0 0 20px #6fffd8, 0 0 40px #ff6fff;
   padding:20px;
   text-align:center;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  background:black;
+  background: radial-gradient(circle at top left, #0f0c29, #302b63, #24243e);
 }
 
+/* Hidden screens */
 .hidden { display:none; }
 
-h1 { font-size:30px; margin-bottom:20px; }
+h1 { font-size:30px; margin-bottom:20px; color:#ff6fff; text-shadow: 0 0 8px #ff6fff, 0 0 16px #6fffd8; }
 
 /* Buttons */
 button {
@@ -65,56 +67,65 @@ button {
   margin:8px 0;
   padding:12px;
   background:black;
-  border:3px solid #ff7a00;
-  color:lime;
+  border:3px solid #ff6fff;
+  color:#6fffd8;
   font-family:"ArcadeClassic", monospace;
   cursor:pointer;
+  text-shadow:0 0 3px #ff6fff;
+  transition: all 0.2s ease;
 }
 
 button:hover {
-  background:lime;
+  background:#6fffd8;
   color:black;
+  box-shadow:0 0 10px #6fffd8, 0 0 20px #ff6fff;
 }
 
 /* Score Meter */
 .meter-container {
   width:100%;
   height:20px;
-  border:2px solid #ff7a00;
+  border:2px solid #ff6fff;
   margin-bottom:15px;
+  box-shadow:0 0 8px #6fffd8;
 }
 
 .meter-bar {
   height:100%;
   width:0%;
-  background:lime;
+  background:#ff6fff;
+  box-shadow:0 0 8px #6fffd8;
   transition:0.3s;
 }
 
 .score-number {
   margin-bottom:10px;
-  color:#ff7a00;
+  color:#ff6fff;
+  text-shadow:0 0 4px #6fffd8;
 }
 
 /* Ticker */
 .ticker {
   margin:20px 0;
   padding:15px;
-  border:2px solid lime;
+  border:2px solid #6fffd8;
   min-height:40px;
+  text-shadow:0 0 4px #ff6fff;
 }
 
 /* Result Box */
 .result {
   margin-top:20px;
   padding:15px;
-  border:2px solid lime;
+  border:2px solid #ff6fff;
+  text-shadow:0 0 6px #6fffd8;
 }
 
 /* GAME OVER */
 .gameover {
   font-size:26px;
-  color:red;
+  color:#ff1a1a;
+  text-shadow:0 0 6px #ff6fff, 0 0 12px #ff1a1a;
   animation:blink 1s infinite;
 }
 
@@ -127,10 +138,11 @@ button:hover {
   position:fixed;
   width:40px;
   height:40px;
-  background:gold;
+  background: gold;
   border:3px solid orange;
   border-radius:50%;
   animation:floatUp 1s forwards;
+  box-shadow:0 0 8px #ff6fff, 0 0 16px #6fffd8;
 }
 
 @keyframes floatUp {
