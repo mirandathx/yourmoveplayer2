@@ -42,7 +42,7 @@ body::after{
   pointer-events:none;
 }
 
-/* Stable container */
+/* Container */
 .container{
   width:90vw; 
   max-width:400px; 
@@ -57,15 +57,15 @@ body::after{
   justify-content:center; 
   align-items:center; 
   z-index:2;
-  position:relative; /* for absolute nice-text */
-  flex-shrink:0; /* prevent shrinking */
-  transition:none; /* prevent smooth resizing between screens */
+  position:relative;
+  flex-shrink:0;
+  transition:none;
 }
 
 @media(max-width:600px){
   .container{
-    width:85vw;   /* slightly thinner on mobile */
-    height:65vh;  /* slightly shorter to show background */
+    width:75vw;   /* narrower for mobile */
+    height:65vh;
   }
 }
 
@@ -90,16 +90,16 @@ button:hover{background:#00fff7;color:black;}
   padding:15px; 
   margin:15px 0; 
   min-height:40px; 
-  color:#00ff88; 
+  color:#ffffff; /* changed from green to white */
   font-size:16px; 
   height:50px; 
   display:flex; 
   align-items:center; 
   justify-content:center;
 }
-.nice-text{
+.nice-text, .celebration{
   position:absolute;
-  bottom:10px; /* fixed bottom */
+  bottom:10px;
   left:50%;
   transform:translateX(-50%);
   font-size:20px;
@@ -108,10 +108,21 @@ button:hover{background:#00fff7;color:black;}
   animation:fadeUp 0.8s forwards;
   pointer-events:none;
 }
+.celebration{
+  font-size:32px;
+  color:#ff0;
+  text-shadow: 0 0 15px #fff, 0 0 20px orange;
+  animation:popUp 1s forwards;
+}
 @keyframes fadeUp{
   0%{opacity:0; transform:translateY(10px);}
   50%{opacity:1; transform:translateY(-10px);}
   100%{opacity:0; transform:translateY(-20px);}
+}
+@keyframes popUp{
+  0%{opacity:0; transform:scale(0);}
+  50%{opacity:1; transform:scale(1.5);}
+  100%{opacity:1; transform:scale(1);}
 }
 </style>
 </head>
@@ -143,6 +154,7 @@ button:hover{background:#00fff7;color:black;}
 <h1>ASK THEM ABOUT</h1>
 <div class="score-number">Score: <span id="scoreDead">0</span>/100</div>
 <div class="ticker" id="tickerBox">---</div>
+<button onclick="runSlot('tickerBox','scoreDead')">GO AGAIN</button>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
 
@@ -151,6 +163,7 @@ button:hover{background:#00fff7;color:black;}
 <h1>GIVE A COMPLIMENT</h1>
 <div class="score-number">Score: <span id="scoreCompliment">0</span>/100</div>
 <div class="ticker" id="complimentTicker">---</div>
+<button onclick="runSlot('complimentTicker','scoreCompliment')">GO AGAIN</button>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
 
@@ -159,19 +172,19 @@ button:hover{background:#00fff7;color:black;}
 <h1>PLAN A DATE</h1>
 <div class="score-number">Score: <span id="scorePlan">0</span>/100</div>
 <div class="ticker" id="planTicker">---</div>
+<button onclick="runSlot('planTicker','scorePlan')">GO AGAIN</button>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
 
 <!-- AUDIO -->
-<audio id="lockSound" volume="0.5"><source src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
+<audio id="lockSound"><source src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
 
 <script>
-// Persistent game state
 let score = 0;
 
 // Navigation
 function startGame(){
-    updateMainScore();
+    updateAllScores();
     goTo('mainScreen');
 }
 
@@ -179,101 +192,78 @@ function goTo(screen){
     document.querySelectorAll('.container > div').forEach(d=>d.classList.add('hidden'));
     document.getElementById(screen).classList.remove('hidden');
 
-    // Auto-run slot machine randomizer
+    // Auto-run randomizer on entry
     if(screen === 'deadScreen') runSlot('tickerBox','scoreDead');
     if(screen === 'complimentScreen') runSlot('complimentTicker','scoreCompliment');
     if(screen === 'planScreen') runSlot('planTicker','scorePlan');
 }
 
-// Update all score displays
-function updateMainScore(){
+function updateAllScores(){
     document.getElementById("score").innerText = score;
     document.getElementById("scoreDead").innerText = score;
     document.getElementById("scoreCompliment").innerText = score;
     document.getElementById("scorePlan").innerText = score;
 }
 
-// Slot machine randomizer
+// Randomizer
 function runSlot(tickerId, scoreId){
     const tickers = {
-        'tickerBox': [
-            "Your secret favourite snack",
-            "Your zodiac sign",
-            "Your go-to karaoke song",
-            "Your most hated email sign-off",
-            "Your favourite holiday destination",
-            "The music you're listening to lately",
-            "How others describe your eye colour",
-            "A colour you wear the most",
-            "A film you enjoyed lately",
-            "An overrated/underrated thing"
-        ],
-        'complimentTicker': [
-            "Your memes are top-tier.",
-            "I respect your coffee game.",
-            "Your Spotify playlists slay.",
-            "You're the most interesting person I'm talking to.",
-            "You're basically a walking good mood.",
-            "You have perfect snack taste.",
-            "You'd be really fun on a date.",
-            "Your eyes are so pretty.",
-            "I can tell you're really funny.",
-            "You're witty AF."
-        ],
-        'planTicker': [
-            "Beach day",
-            "Stroll through the gardens",
-            "Watch a movie",
-            "Night in and cook",
-            "Cocktails and bar",
-            "Pub trivia showdown",
-            "Pool game",
-            "Arcade showdown",
-            "Art gallery"
-        ]
+        'tickerBox': ["Your secret snack","Zodiac sign","Go-to karaoke song","Most hated email sign-off","Favourite holiday","Music you're listening to","Eye colour","Favourite clothing colour","Film you enjoyed","Overrated/underrated thing"],
+        'complimentTicker': ["Your memes are top-tier.","Coffee game is strong.","Spotify playlists slay.","Most interesting person here.","Walking good mood.","Perfect snack taste.","Fun on a date.","Eyes are so pretty.","Really funny.","Witty AF."],
+        'planTicker': ["Beach day","Stroll through gardens","Watch a movie","Night in & cook","Cocktails & bar","Pub trivia showdown","Pool game","Arcade showdown","Art gallery"]
     };
-
     const ticker = document.getElementById(tickerId);
     const scoreDisplay = document.getElementById(scoreId);
     let spins = 0;
     let totalSpins = 25 + Math.floor(Math.random()*10);
     const interval = setInterval(()=>{
-        let idx = Math.floor(Math.random()*tickers[tickerId].length);
-        ticker.innerText = tickers[tickerId][idx];
+        ticker.innerText = tickers[tickerId][Math.floor(Math.random()*tickers[tickerId].length)];
         spins++;
         if(spins > totalSpins){
             clearInterval(interval);
-            // Increment persistent score
             score += 10;
             if(score > 100) score = 100;
-            updateMainScore();
+            updateAllScores();
 
-            // Glow effect
+            // Glow
             scoreDisplay.classList.add('glow');
-            setTimeout(()=>scoreDisplay.classList.remove('glow'), 500);
+            setTimeout(()=>scoreDisplay.classList.remove('glow'),500);
 
-            // Play lock sound at reduced volume
+            // Sound
             const sound = document.getElementById("lockSound");
             sound.volume = 0.5;
             sound.currentTime = 0;
             sound.play();
 
-            // Show floating nice popup
+            // Show nice
             showNice();
+
+            // Celebrations
+            if(score === 50) showCelebration("Wahoo!");
+            if(score === 100) showCelebration("MAX SCORE!");
         }
-    }, 40); // faster randomizer
+    },30); // faster
 }
 
-// Floating nice popup
+// Nice popup
 function showNice(){
     const nice = document.createElement("div");
     nice.className="nice-text";
     nice.innerText="nice";
     document.querySelector(".container").appendChild(nice);
-    setTimeout(()=>nice.remove(), 800);
+    setTimeout(()=>nice.remove(),800);
 }
 
-// End game button
+// Milestone celebration
+function showCelebration(text){
+    const celeb = document.createElement("div");
+    celeb.className="celebration";
+    celeb.innerText = text;
+    document.querySelector(".container").appendChild(celeb);
+    setTimeout(()=>celeb.remove(),1500);
+}
+
+// End game
 function endGame(){
     window.open('https://www.wikihow.com/Be-Single-and-Happy','_blank','width=800,height=600');
 }
