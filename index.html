@@ -11,7 +11,7 @@
        url("fonts/ArcadeClassic.woff") format("woff");
 }
 
-body, h1, p, button, .score-number, .ticker {
+body, h1, h2, p, button, .score-number, .ticker {
   font-family: "ArcadeClassic OFF", monospace !important;
 }
 
@@ -56,7 +56,7 @@ body::after{
 }
 
 .hidden{display:none;}
-h1{color:#ff00c8;}
+h1, h2{color:#ff00c8;}
 p{color:#00fff7;}
 button{width:100%; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;}
 button:hover{background:#00fff7;color:black;}
@@ -161,10 +161,10 @@ function runSlot(tickerId, scoreId){
             "Your go-to karaoke song",
             "Your most hated email sign-off",
             "Your favourite holiday destination",
-            "The music you're listening to lately"
-            "How others describe your eye colour" 
-            "A colour you wear the most" 
-            "A film you enjoyed lately"
+            "The music you're listening to lately",
+            "How others describe your eye colour",
+            "A colour you wear the most",
+            "A film you enjoyed lately",
             "An overrated/underrated thing"
         ],
         'complimentTicker': [
@@ -173,10 +173,10 @@ function runSlot(tickerId, scoreId){
             "Your Spotify playlists slay.",
             "You're the most interesting person I'm talking to.",
             "You're basically a walking good mood.",
-            "You have perfect snack taste."
-            "You'd be really fun on a date."
-            "Your eyes are so pretty."
-            "I can tell you're really funny."
+            "You have perfect snack taste.",
+            "You'd be really fun on a date.",
+            "Your eyes are so pretty.",
+            "I can tell you're really funny.",
             "You're witty AF."
         ],
         'planTicker': [
@@ -187,7 +187,7 @@ function runSlot(tickerId, scoreId){
             "Cocktails and bar",
             "Pub trivia showdown",
             "Pool game",
-            "Arcade showdown"
+            "Arcade showdown",
             "Art gallery"
         ]
     };
@@ -217,7 +217,7 @@ function runSlot(tickerId, scoreId){
             // Show nice popup
             showNice();
         }
-    },70); // faster interval for slot machine effect
+    },70);
 }
 
 // Glow + "nice" text effect
