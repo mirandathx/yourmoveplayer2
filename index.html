@@ -11,7 +11,7 @@
        url("fonts/ArcadeClassic.woff") format("woff");
 }
 
-body, h1, p, button, .score-number, .ticker, .meter-bar {
+body, h1, p, button, .score-number, .ticker {
   font-family: "ArcadeClassic OFF", monospace !important;
 }
 
@@ -43,9 +43,16 @@ body::after{
 }
 
 .container{
-  width:95vw; max-width:520px; height:92vh; border:6px solid #00fff7; box-shadow:0 0 25px #ff00c8; 
-  background: rgba(0,0,0,0.5); /* 50% opacity */
+  width:90vw; max-width:400px; height:80vh; border:6px solid #00fff7; box-shadow:0 0 25px #ff00c8; 
+  background: black;
   padding:20px; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:2;
+}
+
+@media(max-width:600px){
+  .container{
+    width:95vw;
+    height:70vh;
+  }
 }
 
 .hidden{display:none;}
@@ -53,13 +60,8 @@ h1{color:#ff00c8;}
 p{color:#00fff7;}
 button{width:100%; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;}
 button:hover{background:#00fff7;color:black;}
-.score-number{color:#ff7a00;margin:6px;}
-.meter-container{width:100%; height:18px; border:2px solid #ff00c8; margin-bottom:10px;}
-.meter-bar{height:100%; width:0%; background:#ff7a00; transition:0.3s;}
-.meter-bar.glow{box-shadow: 0 0 15px 5px orange; transition:0.3s;}
+.score-number{color:#ff7a00;margin:6px; font-size:18px;}
 .ticker{border:2px solid #00fff7; padding:15px; margin:15px 0; min-height:40px; color:#00ff88;}
-.coin{position:absolute; font-size:40px; animation:coinJump 0.8s forwards;}
-@keyframes coinJump{0%{transform:translateY(50px) scale(0);}50%{transform:translateY(-30px) scale(1.2);}100%{transform:translateY(0) scale(1);}}
 .nice-text{
   position:relative;
   font-size:20px;
@@ -91,10 +93,10 @@ button:hover{background:#00fff7;color:black;}
 <h1>AVOID WIPEOUT</h1>
 <p>Choose your move, player</p>
 <div class="score-number">Score: <span id="score">0</span>/100</div>
-<div class="meter-container"><div id="meterBar" class="meter-bar"></div></div>
 <button onclick="goTo('deadScreen')">OH NO, THE CONVO DIED</button>
 <button onclick="goTo('complimentScreen')">GIVE A COMPLIMENT</button>
 <button onclick="goTo('planScreen')">PLAN A DATE</button>
+<button onclick="resetGame()">END GAME</button>
 </div>
 
 <!-- DEAD SCREEN -->
@@ -122,28 +124,16 @@ button:hover{background:#00fff7;color:black;}
 </div>
 
 <!-- AUDIO -->
-<audio id="coinSound"><source src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
 <audio id="lockSound"><source src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
 
 <script>
 // Game state
-let score=0;
+let score = 0;
 
 function startGame(){
-    playCoin();
+    score = 0;
+    updateScore();
     goTo('mainScreen');
-}
-
-function playCoin(){
-    let coin = document.createElement("div");
-    coin.className="coin";
-    coin.innerText="🪙";
-    coin.style.left="50%";
-    coin.style.top="50%";
-    coin.style.transform="translate(-50%,0)";
-    document.body.appendChild(coin);
-    document.getElementById("coinSound").play();
-    setTimeout(()=>coin.remove(),800);
 }
 
 function goTo(screen){
@@ -151,23 +141,18 @@ function goTo(screen){
     document.getElementById(screen).classList.remove('hidden');
 }
 
-function updateMeter(){
+function updateScore(){
     document.getElementById("score").innerText = score;
-    document.getElementById("meterBar").style.width = score + "%";
 }
 
 function addScore(points){
     score += points;
     if(score > 100) score = 100;
-    updateMeter();
+    updateScore();
 }
 
 // Glow + "nice" text effect
 function showNice(){
-    const meter = document.getElementById("meterBar");
-    meter.classList.add("glow");
-    setTimeout(()=>meter.classList.remove("glow"), 500);
-
     const nice = document.createElement("div");
     nice.className="nice-text";
     nice.innerText="nice";
@@ -176,7 +161,7 @@ function showNice(){
 }
 
 // DEAD SCREEN RANDOMIZER
-const convoTopics = ["Zodiac sign","Favourite cocktail","Suburb they live in","A movie they watched recently","Favourite emoji","Favourite meal to cook","Green flags","Red flags","Favourite chip flavour"];
+const convoTopics = ["Zodiac sign","Favourite cocktail","Suburb they live in","A movie they watched recently","Favourite emoji at work","Favourite meal to cook"];
 document.getElementById("generateTickerBtn").addEventListener("click", ()=>{
     let i=0; const ticker = document.getElementById("tickerBox");
     const interval = setInterval(()=>{
@@ -192,7 +177,7 @@ document.getElementById("generateTickerBtn").addEventListener("click", ()=>{
 });
 
 // COMPLIMENT SCREEN RANDOMIZER
-const compliments=["You look great today.","Love your energy!","You're so interesting.","I love that photo.","You have great taste in music.","You're so funny!"];
+const compliments=["You look great today.","Love your energy!","You're so interesting.","I love that photo.","You have great taste in music.","You're so funny!", "You'd be great fun on a date"];
 document.getElementById("generateComplimentBtn").addEventListener("click", ()=>{
     let i=0; const ticker = document.getElementById("complimentTicker");
     const interval = setInterval(()=>{
@@ -208,7 +193,7 @@ document.getElementById("generateComplimentBtn").addEventListener("click", ()=>{
 });
 
 // PLAN SCREEN RANDOMIZER
-const plans=["Beach day","Stroll through the gardens","Watch a movie","Night in and cook","Cocktails and bar","Pub trivia","A game of pool","An arcade","Art gallery"];
+const plans=["Beach day","Stroll through the gardens","Art gallery","Watch a movie","Night in and cook","Cocktails and bar","Pub trivia","A game of pool","An arcade"];
 document.getElementById("generatePlanBtn").addEventListener("click", ()=>{
     let i=0; const ticker = document.getElementById("planTicker");
     const interval = setInterval(()=>{
@@ -222,6 +207,13 @@ document.getElementById("generatePlanBtn").addEventListener("click", ()=>{
         }
     },100);
 });
+
+// Reset to start screen
+function resetGame(){
+    score = 0;
+    updateScore();
+    goTo('startScreen');
+}
 </script>
 </body>
 </html>
