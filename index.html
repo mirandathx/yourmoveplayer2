@@ -198,6 +198,21 @@ button:hover{
 
 <div id="complimentScreen" class="hidden">
 <h1>COMPLIMENT HER ON...</h1>
+
+<!-- Thumbnail preview -->
+<div id="complimentThumbnail" style="
+     width:120px; height:120px; 
+     margin:10px auto; 
+     border:2px solid #00fff7; 
+     display:flex; 
+     justify-content:center; 
+     align-items:center;
+     font-size:50px;
+     background:black;
+     color:#ff7a00;">
+  💖
+</div>
+
 <div class="ticker" id="complimentBox">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
@@ -226,6 +241,7 @@ function goTo(screen){
     div.classList.add('hidden');
   });
   document.getElementById(screen).classList.remove('hidden');
+  if(screen==='complimentScreen') showComplimentTicker();
 }
 
 function updateMeter(){
@@ -312,11 +328,16 @@ const complimentTopics=[
   "You have great taste in music."
 ];
 
+const complimentThumbnails = ["💖","🌟","🔥","✨","💎"];
+
 function showComplimentTicker(){
   let ticker=document.getElementById("complimentBox");
+  let thumbnail=document.getElementById("complimentThumbnail");
   let i=0;
   let spin=setInterval(()=>{
-    ticker.innerText=complimentTopics[Math.floor(Math.random()*complimentTopics.length)];
+    let index=Math.floor(Math.random()*complimentTopics.length);
+    ticker.innerText=complimentTopics[index];
+    thumbnail.innerText=complimentThumbnails[index];
     i++;
     if(i>10){
       clearInterval(spin);
@@ -337,10 +358,6 @@ function resetGame(){
   updateMeter();
   goTo('startScreen');
 }
-
-// Initialize compliment ticker automatically when screen shows
-document.getElementById('complimentScreen').addEventListener('transitionend', showComplimentTicker);
-document.getElementById('complimentScreen').addEventListener('animationend', showComplimentTicker);
 </script>
 
 </body>
