@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Player 2: Your Move</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+/* BODY & GRID */
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:radial-gradient(circle at center,#ff00c8 0%,#ff7a00 40%,#111 80%);
+  font-family:'Press Start 2P', cursive;
+  overflow-x:hidden;
+}
+
+.grid{
+  position:fixed;
+  bottom:0;
+  width:200%;
+  height:60%;
+  background:
+    linear-gradient(to right, limegreen 1px, transparent 1px),
+    linear-gradient(to top, limegreen 1px, transparent 1px);
+  background-size:40px 40px;
+  transform:perspective(400px) rotateX(60deg);
+  animation:moveGrid 6s linear infinite;
+  opacity:0.4;
+  z-index:0;
+}
+
+@keyframes moveGrid{
+  from{background-position:0 0;}
+  to{background-position:0 40px;}
+}
+
+/* ARCADE CABINET */
+.arcade{
+  width:90vmin;
+  max-width:520px;
+  background:black;
+  border:6px solid limegreen;
+  box-shadow:0 0 25px limegreen;
+  padding:20px;
+  color:white;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+  position:relative;
+  z-index:1;
+}
+
+h1{
+  font-size:20px;
+  color:#ff7a00;
+  text-shadow:3px 3px limegreen;
+  margin-bottom:20px;
+}
+
+p{
+  font-size:14px;
+  line-height:1.6;
+}
+
+button{
+  background:black;
+  border:4px solid #ff7a00;
+  color:limegreen;
+  padding:16px;
+  margin:10px 0;
+  width:100%;
+  font-size:16px;
+  cursor:pointer;
+  font-family:'Press Start 2P', cursive;
+  border-radius:4px;
+}
+
+button:hover{
+  background:limegreen;
+  color:black;
+  box-shadow:0 0 12px limegreen;
+}
+
+.hidden{display:none;}
+
+.score{
+  margin:12px 0;
+  font-size:18px;
+  color:#ff7a00;
+}
+
+/* 8-bit MAN SPRITE USING BOX-SHADOW */
+.pixel-man{
+  width:15px;
+  height:15px;
+  margin:20px auto;
+  background:#ffdbac; /* skin pixel */
+  position: relative;
+  transition: transform 0.3s ease; /* for walking effect */
+  box-shadow:
+    /* Head */
+    15px 0 #000, 30px 0 #000, 45px 0 #000, 60px 0 #000, 75px 0 #000,
+    0 15px #000, 15px 15px #ffdbac, 30px 15px #ffdbac, 45px 15px #ffdbac, 60px 15px #ffdbac, 75px 15px #ffdbac, 90px 15px #000,
+    /* Shirt */
+    15px 30px #00ccff, 30px 30px #00ccff, 45px 30px #00ccff, 60px 30px #00ccff, 75px 30px #00ccff,
+    15px 45px #00ccff, 30px 45px #00ccff, 45px 45px #00ccff, 60px 45px #00ccff, 75px 45px #00ccff,
+    /* Legs */
+    15px 60px #333, 30px 60px #333, 45px 60px #333, 60px 60px #333, 75px 60px #333,
+    15px 75px #333, 30px 75px #333, 45px 75px #333, 60px 75px #333, 75px 75px #333;
+}
+
+/* OVERLAY BOX */
+.overlay{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:black;
+  border:6px solid limegreen;
+  box-shadow:0 0 25px limegreen;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:2;
+}
+.overlay h2{
+  font-size:18px;
+  color:#ff7a00;
+  margin-bottom:15px;
+}
+.overlay p{
+  font-size:16px;
+  margin-bottom:10px;
+}
+.overlay button{
+  width:70%;
+  margin-top:10px;
+}
+
+/* COIN SLOT */
+.coin-slot{
+  width:70px;
+  height:6px;
+  background:#333;
+  margin:20px auto;
+  position:relative;
+}
+
+.coin{
+  width:20px;
+  height:20px;
+  background:orange;
+  border-radius:50%;
+  position:absolute;
+  top:-30px;
+  left:25px;
+  transition:0.6s;
+}
+
+.inserted{ top:2px; }
+
+/* MOBILE OPTIMIZATION */
+@media screen and (max-width:480px){
+  .arcade{ width:90vw; padding:15px; }
+  h1{ font-size:18px; }
+  p{ font-size:16px; }
+  button{ font-size:18px; padding:18px; }
+  .score{ font-size:20px; }
+  .pixel-man{ width:20px; height:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="grid"></div>
+
+<div class="arcade">
+
+  <!-- START SCREEN -->
+  <div id="startScreen">
+    <h1>PLAYER 2: YOUR MOVE</h1>
+    <p>INSERT COIN</p>
+    <div class="coin-slot"><div id="coin" class="coin"></div></div>
+    <button onclick="insertCoin()">START GAME</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen" class="hidden">
+    <h1>TALKING STAGE ACTIVE</h1>
+    <div class="score">Score: Effort <span id="score">0</span>/100</div>
+    <div class="pixel-man" id="pixelMan"></div>
+
+    <button onclick="playerAction('complimentOverlay')">GIVE COMPLIMENT</button>
+    <button onclick="playerAction('questionOverlay')">ASK QUESTION</button>
+    <button onclick="planDate()">PLAN DATE</button>
+    <button onclick="endGame()">END GAME</button>
+  </div>
+
+  <!-- COMPLIMENT OVERLAY -->
+  <div id="complimentOverlay" class="overlay hidden">
+    <h2>Give a Compliment</h2>
+    <p>1. I like how your brain works.</p>
+    <p>2. You looked great in that photo.</p>
+    <p>3. I thought of [thing] and it made me think of you.</p>
+    <button onclick="addScoreAndClose(20,'complimentOverlay')">[Compliment given]</button>
+    <button onclick="closeOverlay('complimentOverlay')">BACK</button>
+  </div>
+
+  <!-- QUESTION OVERLAY -->
+  <div id="questionOverlay" class="overlay hidden">
+    <h2>Ask a Question</h2>
+    <p>1. What did you get up to this weekend?</p>
+    <p>2. What does your Costar say today?</p>
+    <p>3. Do you want to go on a date soon?</p>
+    <button onclick="addScoreAndClose(20,'questionOverlay')">[Question asked]</button>
+    <button onclick="closeOverlay('questionOverlay')">BACK</button>
+  </div>
+
+</div>
+
+<!-- AUDIO -->
+<audio id="coinSound" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+<audio id="wahooSound" src="https://assets.mixkit.co/active_storage/sfx/1993/1993-preview.mp3"></audio>
+<audio id="bgMusic" src="https://assets.mixkit.co/active_storage/music/4/mp3/mixkit-vaporwave-1989-111.mp3" loop autoplay></audio>
+
+<script>
+let score=0;
+const pixelMan = document.getElementById('pixelMan');
+
+function insertCoin(){
+  document.getElementById("coin").classList.add("inserted");
+  document.getElementById("coinSound").play();
+  setTimeout(()=>{
+    document.getElementById("startScreen").classList.add("hidden");
+    document.getElementById("gameScreen").classList.remove("hidden");
+  },600);
+}
+
+function playWahoo(){
+  const audio = document.getElementById('wahooSound');
+  audio.currentTime=0;
+  audio.play();
+}
+
+function walkMan(){
+  // Move sprite forward slightly and back
+  pixelMan.style.transform = "translateY(-5px) translateX(5px)";
+  setTimeout(()=>{ pixelMan.style.transform="translateY(0) translateX(0)"; },300);
+}
+
+function playerAction(overlayId){
+  playWahoo();
+  walkMan();
+  openOverlay(overlayId);
+}
+
+function planDate(){
+  playWahoo();
+  walkMan();
+  addScore(30);
+}
+
+function openOverlay(id){ document.getElementById(id).classList.remove('hidden'); }
+function closeOverlay(id){ document.getElementById(id).classList.add('hidden'); }
+
+function addScoreAndClose(points,id){
+  score += points;
+  if(score>100) score=100;
+  document.getElementById("score").innerText = score;
+  closeOverlay(id);
+}
+
+function addScore(points){
+  score += points;
+  if(score>100) score=100;
+  document.getElementById("score").innerText = score;
+}
+
+function endGame(){
+  window.open("https://www.wikihow.com/Be-Single-and-Happy","_blank");
+}
+</script>
+</body>
+</html>
