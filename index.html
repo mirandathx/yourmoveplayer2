@@ -51,7 +51,18 @@ body::after{
 h1{color:#ff00c8;}
 button{width:100%; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;}
 button:hover{background:#00fff7;color:black;}
-.score-number{color:#ff7a00;margin:6px;}
+.score-number{color:#ff7a00;margin:6px; transition:0.3s;}
+
+/* GLOW EFFECT */
+@keyframes glowPop{
+  0% { text-shadow: 0 0 5px #ff7a00, 0 0 10px #ff00c8; transform: scale(1); }
+  50% { text-shadow: 0 0 10px #fff, 0 0 20px #ff0, 0 0 30px #0ff; transform: scale(1.4); }
+  100% { text-shadow: 0 0 5px #ff7a00, 0 0 10px #ff00c8; transform: scale(1); }
+}
+.score-pop{
+  animation: glowPop 0.5s forwards;
+}
+
 .ticker{border:2px solid #00fff7; padding:15px; margin:10px 0; min-height:40px; width:90%;}
 .level-up{position:absolute; top:20%; font-size:30px; color:yellow; animation:blink 0.5s infinite;}
 @keyframes blink{50%{opacity:0;}}
@@ -102,7 +113,7 @@ button:hover{background:#00fff7;color:black;}
 <!-- MAIN SCREEN -->
 <div id="mainScreen" class="hidden">
 <h1>INCREASE POINTS!</h1>
-<div class="score-number">Score: <span id="score">0</span>/100</div>
+<div class="score-number" id="score">0/100</div>
 
 <button onclick="convoDied()">OH NO, THE CONVO DIED</button>
 <button onclick="goTo('complimentScreen')">GIVE A COMPLIMENT</button>
@@ -113,7 +124,7 @@ button:hover{background:#00fff7;color:black;}
 <!-- COMPLIMENT SCREEN -->
 <div id="complimentScreen" class="hidden">
 <h1>COMPLIMENT HER ON...</h1>
-<div class="score-number">Score: <span id="scoreCompliment">0</span>/100</div>
+<div class="score-number" id="scoreCompliment">0/100</div>
 <button onclick="generateTicker('compliment')">CLICK TO GENERATE</button>
 <div class="ticker" id="complimentTicker">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
@@ -122,7 +133,7 @@ button:hover{background:#00fff7;color:black;}
 <!-- DATE SCREEN -->
 <div id="dateScreen" class="hidden">
 <h1>PLAN A DATE</h1>
-<div class="score-number">Score: <span id="scoreDate">0</span>/100</div>
+<div class="score-number" id="scoreDate">0/100</div>
 <button onclick="generateTicker('date')">CLICK TO GENERATE</button>
 <div class="ticker" id="dateTicker">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
@@ -161,18 +172,21 @@ function goTo(screen){
 
 // SCORE
 function updateMeter(skipGameOver=false){
-    document.getElementById("score").innerText = score;
+    const scoreElements = ['score','scoreCompliment','scoreDate'];
+    scoreElements.forEach(id=>{
+        const el = document.getElementById(id);
+        if(el){
+            el.innerText = score + "/100";
+            el.classList.remove('score-pop'); // reset animation
+            void el.offsetWidth; // trigger reflow
+            el.classList.add('score-pop'); // trigger glow animation
+        }
+    });
     if(!skipGameOver && score <= 0){
         goTo('startScreen');
     }
-    updateSubScreenScore();
 }
-function updateSubScreenScore(){
-    ['scoreCompliment','scoreDate'].forEach(id=>{
-        const el = document.getElementById(id);
-        if(el) el.innerText = score;
-    });
-}
+
 function addScore(points){
     score += points*combo;
     if(score>100) score=100;
