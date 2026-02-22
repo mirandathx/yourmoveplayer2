@@ -49,8 +49,6 @@ body::after{
 
 .hidden{display:none;}
 h1{color:#ff00c8;}
-button{width:100%; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;}
-button:hover{background:#00fff7;color:black;}
 .score-number{color:#ff7a00;margin:6px; transition:0.3s;}
 
 /* GLOW EFFECT */
@@ -63,7 +61,20 @@ button:hover{background:#00fff7;color:black;}
   animation: glowPop 0.5s forwards;
 }
 
-.ticker{border:2px solid #00fff7; padding:15px; margin:10px 0; min-height:40px; width:90%;}
+/* Ticker and button uniform style */
+.ticker, button {
+  width: 90%;
+  max-width: 400px;
+  margin: 10px auto;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.ticker{
+  border:2px solid #00fff7; 
+  padding:15px; 
+  min-height:40px; 
+}
 .explosion{position:absolute; font-size:40px; animation:boom 0.6s forwards;}
 @keyframes boom{0%{transform:scale(0);}50%{transform:scale(1.4);}100%{transform:scale(0);}}
 
@@ -110,7 +121,8 @@ button:hover{background:#00fff7;color:black;}
 
 <!-- MAIN SCREEN -->
 <div id="mainScreen" class="hidden">
-<h1>INCREASE POINTS!</h1>
+<h1>AVOID WIPEOUT</h1>
+<p>Choose your move, player</p>
 <div class="score-number" id="score">0/100</div>
 
 <button onclick="convoDied()">OH NO, THE CONVO DIED</button>
@@ -168,16 +180,13 @@ function goTo(screen){
     clearAllIntervals();
 }
 
-// SCORE
+// SCORE UPDATE (no glow on page switch)
 function updateMeter(skipGameOver=false){
     const scoreElements = ['score','scoreCompliment','scoreDate'];
     scoreElements.forEach(id=>{
         const el = document.getElementById(id);
         if(el){
             el.innerText = score + "/100";
-            el.classList.remove('score-pop');
-            void el.offsetWidth;
-            el.classList.add('score-pop');
         }
     });
     if(!skipGameOver && score <= 0){
@@ -185,11 +194,22 @@ function updateMeter(skipGameOver=false){
     }
 }
 
-function addScore(points){
+function addScore(points, triggerGlow=false){
     score += points*combo;
     if(score>100) score=100;
     combo++;
     updateMeter();
+    // glow/pop only if triggered (by generateTicker)
+    if(triggerGlow){
+        ['scoreCompliment','scoreDate'].forEach(id=>{
+            const el = document.getElementById(id);
+            if(el){
+                el.classList.remove('score-pop');
+                void el.offsetWidth;
+                el.classList.add('score-pop');
+            }
+        });
+    }
 }
 
 // EXPLOSION
@@ -238,7 +258,7 @@ function generateTicker(type){
         if(i > 15){
             clearInterval(tickerIntervals[type]);
             document.getElementById("lockSound").play();
-            addScore(10);
+            addScore(10, true); // trigger glow
             showNiceText();
         }
     }, 100);
