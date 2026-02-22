@@ -49,7 +49,7 @@ body::after{
 
 .hidden{display:none;}
 h1{color:#ff00c8;}
-button{width:100%; padding:15px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;}
+button{width:100%; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;}
 button:hover{background:#00fff7;color:black;}
 .score-number{color:#ff7a00;margin:6px;}
 .high-score{color:#00ff88;margin-bottom:8px;}
@@ -61,14 +61,11 @@ button:hover{background:#00fff7;color:black;}
 @keyframes blink{50%{opacity:0;}}
 .explosion{position:absolute; font-size:40px; animation:boom 0.6s forwards;}
 @keyframes boom{0%{transform:scale(0);}50%{transform:scale(1.4);}100%{transform:scale(0);}}
-
-.win{
-  position:absolute; font-size:50px; color:yellow; animation:winPop 0.8s forwards; text-shadow:0 0 10px #fff; z-index:10;
-}
+.coin{position:absolute; font-size:40px; animation:coinJump 0.8s forwards;}
+@keyframes coinJump{0%{transform:translateY(50px) scale(0);}50%{transform:translateY(-30px) scale(1.2);}100%{transform:translateY(0) scale(1);}}
+.win{position:absolute; font-size:50px; color:yellow; animation:winPop 0.8s forwards; text-shadow:0 0 10px #fff;}
 @keyframes winPop{0%{transform:scale(0);}50%{transform:scale(1.5);}100%{transform:scale(1);}}
-.win-text{
-  position:absolute; top:60%; font-size:20px; color:#00ff88; animation:winTextFade 0.8s forwards; text-shadow:0 0 10px #0ff; z-index:10;
-}
+.win-text{position:absolute; top:60%; font-size:20px; color:#00ff88; animation:winTextFade 0.8s forwards; text-shadow:0 0 10px #0ff;}
 @keyframes winTextFade{0%{opacity:0;}50%{opacity:1;}100%{opacity:1;}}
 </style>
 </head>
@@ -99,7 +96,7 @@ button:hover{background:#00fff7;color:black;}
 
 <!-- COMPLIMENT SCREEN -->
 <div id="complimentScreen" class="hidden">
-<h1>COMPLIMENT ON...</h1>
+<h1>COMPLIMENT HER ON...</h1>
 <button id="generateComplimentBtn">CLICK TO GENERATE</button>
 <div class="ticker" id="complimentTicker">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
@@ -130,7 +127,7 @@ button:hover{background:#00fff7;color:black;}
 let score=0, combo=1, highScore=localStorage.getItem("highScore")||0;
 document.getElementById("highScore").innerText = highScore;
 
-// START GAME
+// Game functions
 function startGame(){
     document.getElementById("coinSound").play();
     showCoin();
@@ -141,19 +138,20 @@ function startGame(){
 function showCoin(){
     let coin = document.createElement("div");
     coin.className="coin";
-    coin.innerText="🪙";
+    coin.innerText="🪙"; // 8-bit coin
+    coin.style.left = "50%";
+    coin.style.top = "50%";
+    coin.style.transform = "translate(-50%,0)";
     document.body.appendChild(coin);
     setTimeout(()=>coin.remove(),800);
 }
 
-// NAVIGATION
 function goTo(screen){
     document.querySelectorAll('.container > div').forEach(d=>d.classList.add('hidden'));
     document.getElementById(screen).classList.remove('hidden');
     clearComplimentInterval();
 }
 
-// METER & SCORE
 function updateMeter(skipGameOver=false){
     document.getElementById("score").innerText = score;
     document.getElementById("combo").innerText = combo;
@@ -175,7 +173,6 @@ function addScore(points){
     updateMeter();
 }
 
-// DEAD / EXPLOSION
 function convoDied(){
     score -= 20;
     combo = 1;
@@ -193,13 +190,11 @@ function explode(){
     setTimeout(()=>{boom.remove();},600);
 }
 
-// PLAN DATE
 function planDate(){
     addScore(15);
     window.open("https://www.google.com/maps/search/dates+near+me/","_blank");
 }
 
-// RESET GAME
 function resetGame(){
     score = 0;
     combo = 1;
@@ -219,13 +214,13 @@ function generateTicker(){
             clearInterval(spin);
             document.getElementById("lockSound").play();
             addScore(10);
-            showWin();
+            showWin(); // WIN popup for Ask About
         }
     },100);
 }
 
 // COMPLIMENT TICKER + WIN
-const compliments=["You look great today.","Love your energy!","You're so interesting.","I love that photo of you.","You have great taste in music.", "You're hilarious!"];
+const compliments=["You look great today.","Love your energy!","You're so interesting.","I love that photo of you.","You have great taste in music.","You're so funny."];
 let complimentInterval=null;
 function clearComplimentInterval(){if(complimentInterval){clearInterval(complimentInterval);complimentInterval=null;}}
 function generateComplimentTicker(){
@@ -244,11 +239,10 @@ function generateComplimentTicker(){
         }
     },100);
 }
-
 document.getElementById("generateComplimentBtn").addEventListener("click", generateComplimentTicker);
 document.getElementById("generateTickerBtn").addEventListener("click", generateTicker);
 
-// WIN popup
+// WIN popup function
 function showWin(){
     let win = document.createElement("div");
     win.className="win";
