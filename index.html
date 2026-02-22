@@ -104,6 +104,7 @@ button:hover {
   min-height:40px;
 }
 
+/* Result Box */
 .result {
   margin-top:20px;
   padding:15px;
@@ -120,10 +121,28 @@ button:hover {
 @keyframes blink {
   50% {opacity:0.2;}
 }
+
+/* Coin Animation */
+.coin {
+  position:fixed;
+  width:40px;
+  height:40px;
+  background:gold;
+  border:3px solid orange;
+  border-radius:50%;
+  animation:floatUp 1s forwards;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(1); opacity:1; }
+  50% { transform: translateY(-50px) scale(1.2) rotate(180deg); }
+  100% { transform: translateY(-120px) scale(0.5) rotate(360deg); opacity:0; }
+}
 </style>
 </head>
 <body>
 
+<!-- Audio -->
 <audio id="bgMusic" loop>
   <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3">
 </audio>
@@ -132,76 +151,92 @@ button:hover {
   <source src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3">
 </audio>
 
+<audio id="coinSound">
+  <source src="https://freesound.org/data/previews/341/341695_6240330-lq.mp3" type="audio/mpeg">
+</audio>
+
 <div class="container">
 
-<!-- START -->
-<div id="startScreen">
-  <h1>YOUR MOVE, PLAYER 2</h1>
-  <button onclick="startGame()">START GAME</button>
-</div>
-
-<!-- MAIN -->
-<div id="mainScreen" class="hidden">
-  <h1>INCREASE TALKING STAGE POINTS! 🖤📱</h1>
-
-  <div class="score-number">Score: <span id="score">0</span>/100</div>
-  <div class="meter-container">
-    <div id="meterBar" class="meter-bar"></div>
+  <!-- START -->
+  <div id="startScreen">
+    <h1>YOUR MOVE, PLAYER 2</h1>
+    <button onclick="startGame()">START GAME</button>
   </div>
 
-  <button onclick="losePoints()">OH NO, THE CONVO DIED</button>
-  <button onclick="goTo('complimentScreen')">GIVE A COMPLIMENT</button>
-  <button onclick="addScore(20)">PLAN A DATE</button>
-  <button onclick="resetGame()">END GAME</button>
-</div>
+  <!-- MAIN -->
+  <div id="mainScreen" class="hidden">
+    <h1>INCREASE TALKING STAGE POINTS! 🖤📱</h1>
 
-<!-- CONVO DIED -->
-<div id="deadScreen" class="hidden">
-  <h1>ASK ABOUT...</h1>
-  <button onclick="generateTicker()">CLICK TO GENERATE</button>
-  <div class="ticker" id="tickerBox">---</div>
-  <button onclick="goTo('mainScreen')">BACK</button>
-</div>
+    <div class="score-number">Score: <span id="score">0</span>/100</div>
+    <div class="meter-container">
+      <div id="meterBar" class="meter-bar"></div>
+    </div>
 
-<!-- COMPLIMENT -->
-<div id="complimentScreen" class="hidden">
-  <h1>COMPLIMENT HER ON...</h1>
-  <div id="complimentOptions" class="hidden">
-    <button onclick="randomCompliment('personality')">PERSONALITY</button>
-     <div class="ticker" id="tickerBox">---</div>
-    <button onclick="randomCompliment('appearance')">APPEARANCE</button>
-     <div class="ticker" id="tickerBox">---</div>
-    <button onclick="randomCompliment('banter')">BANTER</button>
-     <div class="ticker" id="tickerBox">---</div>
+    <button onclick="losePoints()">OH NO, THE CONVO DIED</button>
+    <button onclick="goTo('complimentScreen')">GIVE A COMPLIMENT</button>
+    <button onclick="addScore(20)">PLAN A DATE</button>
+    <button onclick="resetGame()">END GAME</button>
   </div>
 
-  <div id="complimentResult" class="result hidden"></div>
-  <button onclick="goTo('mainScreen')">BACK</button>
+  <!-- CONVO DIED -->
+  <div id="deadScreen" class="hidden">
+    <h1>ASK ABOUT...</h1>
+    <button onclick="generateTicker()">CLICK TO GENERATE</button>
+    <div class="ticker" id="tickerBox">---</div>
+    <button onclick="goTo('mainScreen')">BACK</button>
+  </div>
+
+  <!-- COMPLIMENT -->
+  <div id="complimentScreen" class="hidden">
+    <h1>COMPLIMENT HER ON...</h1>
+    <div id="complimentOptions">
+      <button onclick="randomCompliment('personality')">PERSONALITY</button>
+      <button onclick="randomCompliment('appearance')">APPEARANCE</button>
+      <button onclick="randomCompliment('banter')">BANTER</button>
+    </div>
+
+    <div class="ticker" id="complimentTicker">---</div>
+    <div id="complimentResult" class="result hidden"></div>
+    <button onclick="goTo('mainScreen')">BACK</button>
+  </div>
+
+  <!-- GAME OVER -->
+  <div id="gameOverScreen" class="hidden">
+    <div class="gameover">GAME OVER</div>
+    <button onclick="resetGame()">TRY AGAIN</button>
+  </div>
+
 </div>
 
-<!-- GAME OVER -->
-<div id="gameOverScreen" class="hidden">
-  <div class="gameover">GAME OVER</div>
-  <button onclick="resetGame()">TRY AGAIN</button>
-</div>
-
-</div>
+<!-- Insert Coin Button -->
+<button id="insertCoinBtn" style="position:fixed; bottom:20px; right:20px; padding:10px; font-family:'ArcadeClassic', monospace; background:gold; color:black; border:3px solid orange; cursor:pointer;">
+  INSERT COIN 💰
+</button>
 
 <script>
 let score = 0;
 
+/* START GAME */
 function startGame(){
   document.getElementById("bgMusic").play();
   goTo('mainScreen');
 }
 
+/* NAVIGATION */
 function goTo(screen){
   document.querySelectorAll('.container > div').forEach(div=>{
     div.classList.add('hidden');
   });
   document.getElementById(screen).classList.remove('hidden');
+
+  if(screen === 'complimentScreen'){
+    document.getElementById("complimentOptions").classList.remove("hidden");
+    document.getElementById("complimentResult").classList.add("hidden");
+    document.getElementById("complimentTicker").innerText = "---";
+  }
 }
 
+/* SCORE METER */
 function updateMeter(){
   document.getElementById("score").innerText = score;
   document.getElementById("meterBar").style.width = score + "%";
@@ -254,25 +289,47 @@ const compliments = {
   banter:["You’re witty.","You flirt well.","You’re playful.","You’re quick.","You match energy.","You escalate perfectly.","You’re charming.","You’re sharp.","You’re smooth.","You’re funny."]
 };
 
-function showCompliments(){
-  document.getElementById("complimentOptions").classList.remove("hidden");
-}
-
 function randomCompliment(type){
   let list = compliments[type];
-  let result = list[Math.floor(Math.random()*list.length)];
-  let box = document.getElementById("complimentResult");
-  box.innerText = result;
-  box.classList.remove("hidden");
-  document.getElementById("lockSound").play();
-  addScore(10);
+  let ticker = document.getElementById("complimentTicker");
+  let i = 0;
+  let spin = setInterval(()=>{
+    ticker.innerText = list[Math.floor(Math.random()*list.length)];
+    i++;
+    if(i > 10){
+      clearInterval(spin);
+      let result = list[Math.floor(Math.random()*list.length)];
+      ticker.innerText = result;
+      document.getElementById("complimentResult").innerText = result;
+      document.getElementById("complimentResult").classList.remove("hidden");
+      document.getElementById("lockSound").play();
+      addScore(10);
+    }
+  },100);
 }
 
+/* RESET GAME */
 function resetGame(){
   score = 0;
   updateMeter();
   goTo('startScreen');
 }
+
+/* INSERT COIN */
+document.getElementById("insertCoinBtn").addEventListener("click", (e)=>{
+  let coinSound = document.getElementById("coinSound");
+  coinSound.currentTime = 0;
+  coinSound.play();
+
+  // Coin Animation
+  let coin = document.createElement("div");
+  coin.classList.add("coin");
+  coin.style.left = (e.clientX - 20) + "px";
+  coin.style.top = (e.clientY - 20) + "px";
+  document.body.appendChild(coin);
+
+  setTimeout(()=>{ document.body.removeChild(coin); }, 1000);
+});
 </script>
 
 </body>
