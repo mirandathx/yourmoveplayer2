@@ -41,11 +41,12 @@ body::after{
 
 .container{
   width:85%; max-width:400px; min-width:280px;
-  height:auto;
+  min-height:520px;
   border:6px solid #00fff7; 
   box-shadow:0 0 25px #ff00c8; 
   background: rgba(0,0,0,0.85);
-  padding:20px; display:flex; flex-direction:column; justify-content:center; align-items:center; 
+  padding:20px; 
+  display:flex; flex-direction:column; justify-content:center; align-items:center; 
   text-align:center;
   position:relative;
   font-family: "ArcadeClassic OFF", monospace;
@@ -54,6 +55,7 @@ body::after{
 @media(max-width:600px){
   .container{
     width:90%;
+    min-height:480px;
     padding:15px;
   }
 }
@@ -64,30 +66,29 @@ h1,h2,p, .score-number, .ticker, button, .start-again{
   font-family: "ArcadeClassic OFF", monospace;
 }
 
-h1,h2{color:#ff00c8; margin-bottom:15px;}
-p{color:#00ff7; margin-bottom:10px;}
+h1,h2{color:#ff00c8; margin-bottom:20px;}
+p{color:#00ff7; margin-bottom:15px;}
 
 .score-number{
   color:#ff7a00;
-  margin:6px; 
+  margin:6px 0; 
   font-size:18px;
   text-align:center;
   width:100%;
-  white-space: nowrap; /* keeps score on one line */
+  white-space: nowrap;
 }
 .score-number.glow{text-shadow:0 0 15px orange; transition:0.3s;}
 
 .ticker{
-  width:90%; max-width:300px; font-size:22px; color:white;
+  width:90%; max-width:300px; font-size:24px; color:white;
   text-align:center;
   margin:15px 0;
   min-height:50px;
-  background:transparent; border:none;
   display:flex; justify-content:center; align-items:center;
 }
 
 button{
-  width:90%; max-width:300px; padding:12px; margin:8px 0;
+  width:90%; max-width:300px; padding:12px; margin:6px 0;
   background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;
   flex-shrink:0;
 }
@@ -133,9 +134,9 @@ button:hover{background:#00fff7;color:black;}
 <div class="container">
 
 <div id="startScreen">
-<h2>YOUR MOVE, PLAYER 2</h2>
+<h2 style="font-size:28px;">YOUR MOVE, PLAYER 2</h2>
 <p>LEVEL UP THE TALKING STAGE</p>
-<p>📱💬📱</p>
+<p>🧑📱💬📱👩</p>
 <button onclick="startGame()">START GAME</button>
 </div>
 
@@ -237,12 +238,13 @@ function runSlot(tickerId, scoreId){
             scoreDisplay.classList.add('glow');
             setTimeout(()=>scoreDisplay.classList.remove('glow'),500);
             showNice();
+            showCelebration();
             const sound = document.getElementById("lockSound");
             sound.volume = 0.5;
             sound.currentTime = 0;
             sound.play();
         }
-    },60);
+    },50);
 }
 
 function showNice(){
@@ -251,6 +253,22 @@ function showNice(){
     nice.innerText="nice";
     document.querySelector(".container").appendChild(nice);
     setTimeout(()=>nice.remove(),800);
+}
+
+function showCelebration(){
+    if(score===50){
+        const wahoo = document.createElement("div");
+        wahoo.className="celebration-text";
+        wahoo.innerText="WAHOO!";
+        document.querySelector(".container").appendChild(wahoo);
+        setTimeout(()=>wahoo.remove(),1000);
+    } else if(score===100){
+        const max = document.createElement("div");
+        max.className="celebration-text";
+        max.innerText="MAX SCORE!";
+        document.querySelector(".container").appendChild(max);
+        setTimeout(()=>max.remove(),1000);
+    }
 }
 
 function endGame(){
