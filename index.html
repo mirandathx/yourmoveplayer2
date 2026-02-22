@@ -84,7 +84,7 @@ button{
 }
 button:hover{background:#00fff7;color:black;}
 .score-number{color:#ff7a00;margin:6px; font-size:18px;}
-.score-number.glow{text-shadow:0 0 15px orange; transition:0.3s;}
+.score-number.glow{text-shadow:0 0 15px orange,0 0 30px orange; transition:0.3s;}
 .ticker{
   border:2px solid #00fff7; 
   padding:15px; 
@@ -114,6 +114,19 @@ button:hover{background:#00fff7;color:black;}
   text-shadow: 0 0 15px #fff, 0 0 20px orange;
   animation:popUp 1s forwards;
 }
+
+/* Confetti */
+.confetti-piece{
+  position:absolute;
+  width:6px;
+  height:12px;
+  background-color: #ff0;
+  opacity:0.9;
+  transform:rotate(0deg);
+  pointer-events:none;
+  z-index:1000;
+  animation:confettiFall 1.5s forwards;
+}
 @keyframes fadeUp{
   0%{opacity:0; transform:translateY(10px);}
   50%{opacity:1; transform:translateY(-10px);}
@@ -123,6 +136,10 @@ button:hover{background:#00fff7;color:black;}
   0%{opacity:0; transform:scale(0);}
   50%{opacity:1; transform:scale(1.5);}
   100%{opacity:1; transform:scale(1);}
+}
+@keyframes confettiFall{
+  0%{transform:translateY(0px) rotate(0deg);}
+  100%{transform:translateY(200px) rotate(360deg); opacity:0;}
 }
 </style>
 </head>
@@ -192,7 +209,6 @@ function goTo(screen){
     document.querySelectorAll('.container > div').forEach(d=>d.classList.add('hidden'));
     document.getElementById(screen).classList.remove('hidden');
 
-    // Auto-run randomizer on entry
     if(screen === 'deadScreen') runSlot('tickerBox','scoreDead');
     if(screen === 'complimentScreen') runSlot('complimentTicker','scoreCompliment');
     if(screen === 'planScreen') runSlot('planTicker','scorePlan');
@@ -225,7 +241,7 @@ function runSlot(tickerId, scoreId){
             if(score > 100) score = 100;
             updateAllScores();
 
-            // Glow
+            // Glow with nice
             scoreDisplay.classList.add('glow');
             setTimeout(()=>scoreDisplay.classList.remove('glow'),500);
 
@@ -240,9 +256,10 @@ function runSlot(tickerId, scoreId){
 
             // Celebrations
             if(score === 50) showCelebration("Wahoo!");
-            if(score === 100) showCelebration("MAX SCORE!");
+            if(score === 100) showCelebration("MAX SCORE!"); 
+            if(score === 100) showConfetti();
         }
-    },30); // faster
+    },25); // faster randomizer
 }
 
 // Nice popup
@@ -261,6 +278,18 @@ function showCelebration(text){
     celeb.innerText = text;
     document.querySelector(".container").appendChild(celeb);
     setTimeout(()=>celeb.remove(),1500);
+}
+
+// Confetti
+function showConfetti(){
+    for(let i=0;i<50;i++){
+        const confetti = document.createElement("div");
+        confetti.className="confetti-piece";
+        confetti.style.left=Math.random()*100+"%";
+        confetti.style.backgroundColor=`hsl(${Math.random()*360},100%,50%)`;
+        document.body.appendChild(confetti);
+        setTimeout(()=>confetti.remove(),1500);
+    }
 }
 
 // End game
