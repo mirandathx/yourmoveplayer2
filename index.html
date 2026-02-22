@@ -16,21 +16,14 @@ body, h1, p, button, .score-number, .high-score, .combo, .ticker, .meter-bar {
 }
 
 body{
-  margin:0; 
-  height:100vh; 
-  display:flex; 
-  justify-content:center; 
-  align-items:center; 
+  margin:0; height:100vh; display:flex; justify-content:center; align-items:center; 
   overflow:hidden; 
   background:radial-gradient(circle at top,#ff00c8,#ff7a00 40%,#1a001f 80%); 
   color:white;
 }
 
 .grid{
-  position:fixed; 
-  bottom:0; 
-  width:200%; 
-  height:60%;
+  position:fixed; bottom:0; width:200%; height:60%;
   background:linear-gradient(to right,#00fff7 1px,transparent 1px),
              linear-gradient(to top,#00fff7 1px,transparent 1px);
   background-size:40px 40px; 
@@ -50,19 +43,8 @@ body::after{
 }
 
 .container{
-  width:95vw; 
-  max-width:520px; 
-  height:92vh; 
-  border:6px solid #00fff7; 
-  box-shadow:0 0 25px #ff00c8; 
-  background:black;
-  padding:20px; 
-  text-align:center; 
-  display:flex; 
-  flex-direction:column; 
-  justify-content:center; 
-  align-items:center; 
-  z-index:2;
+  width:95vw; max-width:520px; height:92vh; border:6px solid #00fff7; box-shadow:0 0 25px #ff00c8; background:black;
+  padding:20px; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:2;
 }
 
 .hidden{display:none;}
@@ -88,13 +70,14 @@ button:hover{background:#00fff7;color:black;}
 <!-- START SCREEN -->
 <div id="startScreen">
 <h1>YOUR MOVE, PLAYER 2</h1>
-<p>LEVEL UP TALKING STAGE</p>
+<p>INSERT COIN</p>
 <button onclick="startGame()">START GAME</button>
 </div>
 
 <!-- MAIN SCREEN -->
 <div id="mainScreen" class="hidden">
 <h1>INCREASE POINTS!</h1>
+<div class="high-score">HIGH SCORE: <span id="highScore">0</span></div>
 <div class="score-number">Score: <span id="score">0</span>/100</div>
 <div class="combo">Combo: x<span id="combo">1</span></div>
 <div class="meter-container"><div id="meterBar" class="meter-bar"></div></div>
@@ -139,28 +122,85 @@ let score=0, combo=1, highScore=localStorage.getItem("highScore")||0;
 document.getElementById("highScore").innerText = highScore;
 
 // Game functions
-function startGame(){document.getElementById("coinSound").play();document.getElementById("bgMusic").play();goTo('mainScreen');}
-function goTo(screen){
-  document.querySelectorAll('.container > div').forEach(d=>d.classList.add('hidden'));
-  document.getElementById(screen).classList.remove('hidden');
-  clearComplimentInterval(); // stop compliment ticker if leaving screen
+function startGame(){
+    document.getElementById("coinSound").play();
+    document.getElementById("bgMusic").play();
+    goTo('mainScreen');
 }
-function updateMeter(){document.getElementById("score").innerText=score;document.getElementById("combo").innerText=combo;document.getElementById("meterBar").style.width=score+"%";if(score>highScore){highScore=score;localStorage.setItem("highScore",highScore);document.getElementById("highScore").innerText=highScore;}if(score<=0) goTo('gameOverScreen');}
-function addScore(points){score+=points*combo;if(score>100)score=100;combo++;updateMeter();}
-function convoDied(){score-=20;combo=1;if(score<0)score=0;explode();updateMeter();goTo('deadScreen');}
-function explode(){let boom=document.createElement("div");boom.className="explosion";boom.innerText="💥";document.body.appendChild(boom);setTimeout(()=>{boom.remove();},600);}
-function planDate(){addScore(15);window.open("https://www.google.com/maps/search/dates+near+me/","_blank");}
-function resetGame(){score=0;combo=1;updateMeter();goTo('startScreen');}
+
+function goTo(screen){
+    document.querySelectorAll('.container > div').forEach(d=>d.classList.add('hidden'));
+    document.getElementById(screen).classList.remove('hidden');
+    clearComplimentInterval(); // stop compliment ticker if leaving screen
+}
+
+// updateMeter now has a skipGameOver flag
+function updateMeter(skipGameOver=false){
+    document.getElementById("score").innerText = score;
+    document.getElementById("combo").innerText = combo;
+    document.getElementById("meterBar").style.width = score + "%";
+
+    if(score > highScore){
+        highScore = score;
+        localStorage.setItem("highScore", highScore);
+        document.getElementById("highScore").innerText = highScore;
+    }
+
+    if(!skipGameOver && score <= 0){
+        goTo('gameOverScreen');
+    }
+}
+
+function addScore(points){
+    score += points * combo;
+    if(score > 100) score = 100;
+    combo++;
+    updateMeter();
+}
+
+function convoDied(){
+    score -= 20;
+    combo = 1;
+    if(score < 0) score = 0;
+    explode();
+    updateMeter(true); // skip automatic game over
+    goTo('deadScreen');
+}
+
+function explode(){
+    let boom = document.createElement("div");
+    boom.className = "explosion";
+    boom.innerText = "💥";
+    document.body.appendChild(boom);
+    setTimeout(()=>{boom.remove();},600);
+}
+
+function planDate(){
+    addScore(15);
+    window.open("https://www.google.com/maps/search/dates+near+me/","_blank");
+}
+
+function resetGame(){
+    score = 0;
+    combo = 1;
+    updateMeter();
+    goTo('startScreen');
+}
 
 // ASK ABOUT TICKER
-const convoTopics=["Her zodiac sign","Her favourite cocktail","What suburb she lives in","A movie she watched recently","Her favourite emoji at work","Her favourite meal to cook"];
+const convoTopics = ["Her zodiac sign","Her favourite cocktail","What suburb she lives in","A movie she watched recently","Her favourite emoji at work","Her favourite meal to cook"];
 function generateTicker(){
-  const ticker=document.getElementById("tickerBox");
-  let i=0;
-  const spin=setInterval(()=>{
-    ticker.innerText=convoTopics[Math.floor(Math.random()*convoTopics.length)];
-    i++;if(i>15){clearInterval(spin);document.getElementById("lockSound").play();addScore(10);}
-  },100);
+    const ticker = document.getElementById("tickerBox");
+    let i = 0;
+    const spin = setInterval(()=>{
+        ticker.innerText = convoTopics[Math.floor(Math.random()*convoTopics.length)];
+        i++;
+        if(i>15){
+            clearInterval(spin);
+            document.getElementById("lockSound").play();
+            addScore(10);
+        }
+    },100);
 }
 
 // COMPLIMENT TICKER
@@ -168,14 +208,19 @@ const compliments=["You're looking amazing today.","Love your energy!","You're d
 let complimentInterval=null;
 function clearComplimentInterval(){if(complimentInterval){clearInterval(complimentInterval);complimentInterval=null;}}
 function generateComplimentTicker(){
-  clearComplimentInterval();
-  const ticker=document.getElementById("complimentTicker");
-  let i=0;
-  complimentInterval=setInterval(()=>{
-    const index=Math.floor(Math.random()*compliments.length);
-    ticker.innerText=compliments[index];
-    i++;if(i>15){clearComplimentInterval();document.getElementById("lockSound").play();addScore(10);}
-  },100);
+    clearComplimentInterval();
+    const ticker = document.getElementById("complimentTicker");
+    let i = 0;
+    complimentInterval = setInterval(()=>{
+        const index = Math.floor(Math.random()*compliments.length);
+        ticker.innerText = compliments[index];
+        i++;
+        if(i>15){
+            clearComplimentInterval();
+            document.getElementById("lockSound").play();
+            addScore(10);
+        }
+    },100);
 }
 document.getElementById("generateComplimentBtn").addEventListener("click", generateComplimentTicker);
 </script>
