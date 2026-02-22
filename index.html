@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Player 2: Your Move</title>
+<title>Your Move, Player 2</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
 <style>
 /* BODY & GRID */
 body{
@@ -104,13 +103,10 @@ button:hover{
   position: relative;
   transition: transform 0.3s ease; /* for walking effect */
   box-shadow:
-    /* Head */
     15px 0 #000, 30px 0 #000, 45px 0 #000, 60px 0 #000, 75px 0 #000,
     0 15px #000, 15px 15px #ffdbac, 30px 15px #ffdbac, 45px 15px #ffdbac, 60px 15px #ffdbac, 75px 15px #ffdbac, 90px 15px #000,
-    /* Shirt */
     15px 30px #00ccff, 30px 30px #00ccff, 45px 30px #00ccff, 60px 30px #00ccff, 75px 30px #00ccff,
     15px 45px #00ccff, 30px 45px #00ccff, 45px 45px #00ccff, 60px 45px #00ccff, 75px 45px #00ccff,
-    /* Legs */
     15px 60px #333, 30px 60px #333, 45px 60px #333, 60px 60px #333, 75px 60px #333,
     15px 75px #333, 30px 75px #333, 45px 75px #333, 60px 75px #333, 75px 75px #333;
 }
@@ -227,18 +223,24 @@ button:hover{
 
 </div>
 
-<!-- AUDIO -->
-<audio id="coinSound" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
-<audio id="wahooSound" src="https://assets.mixkit.co/active_storage/sfx/1993/1993-preview.mp3"></audio>
-<audio id="bgMusic" src="https://assets.mixkit.co/active_storage/music/4/mp3/mixkit-vaporwave-1989-111.mp3" loop autoplay></audio>
+<!-- AUDIO (local files) -->
+<audio id="coinSound" src="audio/coin.mp3"></audio>
+<audio id="wahooSound" src="audio/wahoo.mp3"></audio>
+<audio id="bgMusic" src="audio/bgMusic.mp3" loop></audio>
 
 <script>
 let score=0;
 const pixelMan = document.getElementById('pixelMan');
+const bgMusic = document.getElementById('bgMusic');
 
 function insertCoin(){
   document.getElementById("coin").classList.add("inserted");
   document.getElementById("coinSound").play();
+
+  // Start vaporwave music after user interaction
+  bgMusic.volume = 0.2;
+  bgMusic.play().catch(()=>{}); 
+
   setTimeout(()=>{
     document.getElementById("startScreen").classList.add("hidden");
     document.getElementById("gameScreen").classList.remove("hidden");
@@ -252,7 +254,6 @@ function playWahoo(){
 }
 
 function walkMan(){
-  // Move sprite forward slightly and back
   pixelMan.style.transform = "translateY(-5px) translateX(5px)";
   setTimeout(()=>{ pixelMan.style.transform="translateY(0) translateX(0)"; },300);
 }
