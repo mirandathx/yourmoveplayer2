@@ -61,11 +61,30 @@ button:hover{background:#00fff7;color:black;}
 @keyframes blink{50%{opacity:0;}}
 .explosion{position:absolute; font-size:40px; animation:boom 0.6s forwards;}
 @keyframes boom{0%{transform:scale(0);}50%{transform:scale(1.4);}100%{transform:scale(0);}}
-.coin{position:absolute; font-size:40px; animation:coinJump 0.8s forwards;}
-@keyframes coinJump{0%{transform:translateY(50px) scale(0);}50%{transform:translateY(-30px) scale(1.2);}100%{transform:translateY(0) scale(1);}}
-.win{position:absolute; font-size:50px; color:yellow; animation:winPop 0.8s forwards; text-shadow:0 0 10px #fff;}
+
+.coin{
+  position:fixed;
+  font-size:50px;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,50%) scale(0);
+  animation:coinJump 0.8s forwards;
+  text-shadow:0 0 8px #ff0, 0 0 15px #fff;
+  z-index:10;
+}
+@keyframes coinJump{
+  0%{transform:translate(-50%,50%) scale(0);}
+  50%{transform:translate(-50%,-30%) scale(1.4);}
+  100%{transform:translate(-50%,0) scale(1);}
+}
+
+.win{
+  position:absolute; font-size:50px; color:yellow; animation:winPop 0.8s forwards; text-shadow:0 0 10px #fff; z-index:10;
+}
 @keyframes winPop{0%{transform:scale(0);}50%{transform:scale(1.5);}100%{transform:scale(1);}}
-.win-text{position:absolute; top:60%; font-size:20px; color:#00ff88; animation:winTextFade 0.8s forwards; text-shadow:0 0 10px #0ff;}
+.win-text{
+  position:absolute; top:60%; font-size:20px; color:#00ff88; animation:winTextFade 0.8s forwards; text-shadow:0 0 10px #0ff; z-index:10;
+}
 @keyframes winTextFade{0%{opacity:0;}50%{opacity:1;}100%{opacity:1;}}
 </style>
 </head>
@@ -127,7 +146,7 @@ button:hover{background:#00fff7;color:black;}
 let score=0, combo=1, highScore=localStorage.getItem("highScore")||0;
 document.getElementById("highScore").innerText = highScore;
 
-// Game functions
+// START GAME
 function startGame(){
     document.getElementById("coinSound").play();
     showCoin();
@@ -138,20 +157,19 @@ function startGame(){
 function showCoin(){
     let coin = document.createElement("div");
     coin.className="coin";
-    coin.innerText="🪙"; // 8-bit coin
-    coin.style.left = "50%";
-    coin.style.top = "50%";
-    coin.style.transform = "translate(-50%,0)";
+    coin.innerText="🪙";
     document.body.appendChild(coin);
     setTimeout(()=>coin.remove(),800);
 }
 
+// NAVIGATION
 function goTo(screen){
     document.querySelectorAll('.container > div').forEach(d=>d.classList.add('hidden'));
     document.getElementById(screen).classList.remove('hidden');
     clearComplimentInterval();
 }
 
+// METER & SCORE
 function updateMeter(skipGameOver=false){
     document.getElementById("score").innerText = score;
     document.getElementById("combo").innerText = combo;
@@ -173,6 +191,7 @@ function addScore(points){
     updateMeter();
 }
 
+// DEAD / EXPLOSION
 function convoDied(){
     score -= 20;
     combo = 1;
@@ -190,11 +209,13 @@ function explode(){
     setTimeout(()=>{boom.remove();},600);
 }
 
+// PLAN DATE
 function planDate(){
     addScore(15);
     window.open("https://www.google.com/maps/search/dates+near+me/","_blank");
 }
 
+// RESET GAME
 function resetGame(){
     score = 0;
     combo = 1;
@@ -214,13 +235,13 @@ function generateTicker(){
             clearInterval(spin);
             document.getElementById("lockSound").play();
             addScore(10);
-            showWin(); // WIN popup for Ask About
+            showWin();
         }
     },100);
 }
 
 // COMPLIMENT TICKER + WIN
-const compliments=["You look great today.","Love your energy!","You're so interesting.","I love that photo of you.","You have great taste in music.","You're so funny."];
+const compliments=["You look great today.","Love your energy!","You're so interesting.","I love that photo of you.","You have great taste in music.", "You're hilarious!"];
 let complimentInterval=null;
 function clearComplimentInterval(){if(complimentInterval){clearInterval(complimentInterval);complimentInterval=null;}}
 function generateComplimentTicker(){
@@ -239,10 +260,11 @@ function generateComplimentTicker(){
         }
     },100);
 }
+
 document.getElementById("generateComplimentBtn").addEventListener("click", generateComplimentTicker);
 document.getElementById("generateTickerBtn").addEventListener("click", generateTicker);
 
-// WIN popup function
+// WIN popup
 function showWin(){
     let win = document.createElement("div");
     win.className="win";
