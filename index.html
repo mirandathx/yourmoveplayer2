@@ -53,13 +53,17 @@ body::after{
   text-align:center;
 }
 @media(max-width:600px){
-  .container{width:80%; height:60vh;}
+  .container{
+    width:90%;
+    height:65vh;
+    padding:15px;
+  }
 }
 
 .hidden{display:none;}
 
-h1,h2{color:#ff00c8; margin-bottom:15px;}
-p{color:#00ff7; margin-bottom:10px;}
+h1,h2{color:#ff00c8; margin-bottom:20px;}
+p{color:#00ff7; margin-bottom:15px;}
 
 button{
   width:90%; max-width:300px; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;
@@ -67,14 +71,21 @@ button{
 }
 button:hover{background:#00fff7;color:black;}
 
-.score-number{color:#ff7a00;margin:6px; font-size:18px;}
+.score-number{
+  color:#ff7a00;
+  margin:6px; 
+  font-size:18px;
+  white-space: nowrap; 
+  text-align:center;
+}
 .score-number.glow{text-shadow:0 0 15px orange; transition:0.3s;}
 
 .ticker{
-  width:90%; max-width:300px; padding:15px; margin:15px 0; min-height:40px; 
-  color:white; font-size:16px; height:50px; display:flex; align-items:center; justify-content:center;
-  background:transparent; /* remove blue box */
-  border:none; /* remove border */
+  width:90%; max-width:300px; padding:15px; margin:15px 0; min-height:50px; 
+  color:white; font-size:20px; /* increased font */
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; 
+  border:none; 
 }
 
 /* Nice popup at bottom */
@@ -211,7 +222,7 @@ function runSlot(tickerId, scoreId){
     const ticker = document.getElementById(tickerId);
     const scoreDisplay = document.getElementById(scoreId);
     let spins = 0;
-    let totalSpins = 15 + Math.floor(Math.random()*5);
+    let totalSpins = 10 + Math.floor(Math.random()*5);
     const interval = setInterval(()=>{
         ticker.innerText = tickers[tickerId][Math.floor(Math.random()*tickers[tickerId].length)];
         spins++;
@@ -230,7 +241,7 @@ function runSlot(tickerId, scoreId){
             if(score===50) showCelebration("Wahoo!");
             if(score===100) showCelebration("MAX SCORE!");
         }
-    },60);
+    },50);
 }
 
 function showNice(){
