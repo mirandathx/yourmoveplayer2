@@ -43,32 +43,13 @@ body::after{
 }
 
 .container{
-  width:95vw; 
-  max-width:520px; 
-  height:92vh; 
-  border:6px solid #00fff7; 
-  box-shadow:0 0 25px #ff00c8; 
-  background: rgba(0,0,0,0.7); /* changed from solid black */
-  padding:20px; 
-  text-align:center; 
-  display:flex; 
-  flex-direction:column; 
-  justify-content:center; 
-  align-items:center; 
-  z-index:2;
+  width:95vw; max-width:520px; height:92vh; border:6px solid #00fff7; box-shadow:0 0 25px #ff00c8; background:black;
+  padding:20px; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:2;
 }
 
 .hidden{display:none;}
 h1{color:#ff00c8;}
-button{
-  width:100%; 
-  padding:12px; 
-  margin:6px 0; 
-  background:black; 
-  border:3px solid #ff7a00; 
-  color:#00fff7; 
-  cursor:pointer;
-}
+button{width:100%; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;}
 button:hover{background:#00fff7;color:black;}
 .score-number{color:#ff7a00;margin:6px;}
 .high-score{color:#00ff88;margin-bottom:8px;}
@@ -80,6 +61,24 @@ button:hover{background:#00fff7;color:black;}
 @keyframes blink{50%{opacity:0;}}
 .explosion{position:absolute; font-size:40px; animation:boom 0.6s forwards;}
 @keyframes boom{0%{transform:scale(0);}50%{transform:scale(1.4);}100%{transform:scale(0);}}
+
+.coin{
+  position:fixed;
+  width:30px;
+  height:30px;
+  background:#ff0;
+  border:2px solid #fff;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,50%) scale(0);
+  animation:coinJump 0.8s forwards;
+  z-index:10;
+}
+@keyframes coinJump{
+  0%{transform:translate(-50%,50%) scale(0);}
+  50%{transform:translate(-50%,-30%) scale(1.4);}
+  100%{transform:translate(-50%,0) scale(1);}
+}
 
 .nice-text{
   position:absolute; top:80%; font-size:20px; color:#00ff88; text-shadow:0 0 10px #0ff;
@@ -101,23 +100,20 @@ button:hover{background:#00fff7;color:black;}
 <div id="startScreen">
 <h1>YOUR MOVE, PLAYER 2</h1>
 <p>Level up the talking stage!</p>
-<div class="high-score">HIGH SCORE: <span id="highScore">0</span></div>
-<div class="score-number">Score: <span id="score">0</span>/100</div>
-<div class="combo">Combo: x<span id="combo">1</span></div>
-<div class="meter-container"><div id="meterBar" class="meter-bar"></div></div>
 <button onclick="startGame()">START GAME</button>
 </div>
 
 <!-- MAIN SCREEN -->
 <div id="mainScreen" class="hidden">
-<h2>CHOOSE YOUR MOVE TO BE SMOOTH</h2>
-<div class="high-score">HIGH SCORE: <span id="highScoreMain">0</span></div>
-<div class="score-number">Score: <span id="scoreMain">0</span>/100</div>
-<div class="combo">Combo: x<span id="comboMain">1</span></div>
-<div class="meter-container"><div id="meterBarMain" class="meter-bar"></div></div>
+<h1>INCREASE POINTS!</h1>
+<div class="high-score">HIGH SCORE: <span id="highScore">0</span></div>
+<div class="score-number">Score: <span id="score">0</span>/100</div>
+<div class="combo">Combo: x<span id="combo">1</span></div>
+<div class="meter-container"><div id="meterBar" class="meter-bar"></div></div>
 
 <button onclick="convoDied()">OH NO, THE CONVO DIED</button>
 <button onclick="goTo('complimentScreen')">GIVE A COMPLIMENT</button>
+<button onclick="goTo('askScreen')">ASK ABOUT</button>
 <button onclick="goTo('dateScreen')">PLAN A DATE</button>
 <button onclick="resetGame()">END GAME</button>
 </div>
@@ -125,24 +121,14 @@ button:hover{background:#00fff7;color:black;}
 <!-- COMPLIMENT SCREEN -->
 <div id="complimentScreen" class="hidden">
 <h1>COMPLIMENT HER ON...</h1>
-<div class="high-score">HIGH SCORE: <span id="highScoreComp">0</span></div>
-<div class="score-number">Score: <span id="scoreComp">0</span>/100</div>
-<div class="combo">Combo: x<span id="comboComp">1</span></div>
-<div class="meter-container"><div id="meterBarComp" class="meter-bar"></div></div>
-
 <button onclick="generateComplimentTicker()">CLICK TO GENERATE</button>
 <div class="ticker" id="complimentTicker">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
 
-<!-- OH NO SCREEN -->
+<!-- ASK SCREEN -->
 <div id="askScreen" class="hidden">
-<h1>OH NO, THE CONVO DIED</h1>
-<div class="high-score">HIGH SCORE: <span id="highScoreAsk">0</span></div>
-<div class="score-number">Score: <span id="scoreAsk">0</span>/100</div>
-<div class="combo">Combo: x<span id="comboAsk">1</span></div>
-<div class="meter-container"><div id="meterBarAsk" class="meter-bar"></div></div>
-
+<h1>ASK ABOUT...</h1>
 <button onclick="generateAskTicker()">CLICK TO GENERATE</button>
 <div class="ticker" id="askTicker">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
@@ -151,17 +137,13 @@ button:hover{background:#00fff7;color:black;}
 <!-- DATE SCREEN -->
 <div id="dateScreen" class="hidden">
 <h1>PLAN A DATE...</h1>
-<div class="high-score">HIGH SCORE: <span id="highScoreDate">0</span></div>
-<div class="score-number">Score: <span id="scoreDate">0</span>/100</div>
-<div class="combo">Combo: x<span id="comboDate">1</span></div>
-<div class="meter-container"><div id="meterBarDate" class="meter-bar"></div></div>
-
 <button onclick="generateDateTicker()">CLICK TO GENERATE</button>
 <div class="ticker" id="dateTicker">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
 
 <!-- AUDIO -->
+<audio id="coinSound"><source src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
 <audio id="lockSound"><source src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
 <audio id="explodeSound"><source src="https://assets.mixkit.co/active_storage/sfx/2067/2067-preview.mp3"></audio>
 <audio id="bgMusic" loop><source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3"></audio>
@@ -169,57 +151,58 @@ button:hover{background:#00fff7;color:black;}
 <script>
 // SCORES
 let score=0, combo=1, highScore=localStorage.getItem("highScore")||0;
+document.getElementById("highScore").innerText = highScore;
 
-// Start game
+// START GAME
 function startGame(){
+    document.getElementById("coinSound").play();
+    showCoin();
     document.getElementById("bgMusic").play();
     goTo('mainScreen');
 }
+function showCoin(){
+    let coin = document.createElement("div");
+    coin.className="coin";
+    document.body.appendChild(coin);
+    setTimeout(()=>coin.remove(),800);
+}
 
-// Navigation
+// NAVIGATION
 function goTo(screen){
     document.querySelectorAll('.container > div').forEach(d=>d.classList.add('hidden'));
     document.getElementById(screen).classList.remove('hidden');
-    updateAllMeters();
     clearAllIntervals();
 }
 
-// Update all meters for each page
-function updateAllMeters(){
-    document.querySelectorAll('.score-number span').forEach(e=>e.innerText=score);
-    document.querySelectorAll('.combo span').forEach(e=>e.innerText=combo);
-    document.querySelectorAll('.meter-bar').forEach(e=>e.style.width = score+'%');
-    document.querySelectorAll('.high-score span').forEach(e=>e.innerText = highScore);
+// SCORE METER
+function updateMeter(skipGameOver=false){
+    document.getElementById("score").innerText = score;
+    document.getElementById("combo").innerText = combo;
+    document.getElementById("meterBar").style.width = score + "%";
+    if(score > highScore){
+        highScore = score;
+        localStorage.setItem("highScore", highScore);
+        document.getElementById("highScore").innerText = highScore;
+    }
+    if(!skipGameOver && score <= 0){
+        goTo('gameOverScreen');
+    }
 }
-
-// Clear intervals
-let complimentInterval=null, askInterval=null, dateInterval=null;
-function clearAllIntervals(){
-    if(complimentInterval) clearInterval(complimentInterval);
-    if(askInterval) clearInterval(askInterval);
-    if(dateInterval) clearInterval(dateInterval);
-}
-
-// Add score
 function addScore(points){
     score += points*combo;
     if(score>100) score=100;
     combo++;
-    if(score>highScore){
-        highScore=score;
-        localStorage.setItem("highScore",highScore);
-    }
-    updateAllMeters();
+    updateMeter();
 }
 
 // EXPLOSION
 function convoDied(){
     score -= 20;
+    combo =1;
     if(score<0) score=0;
-    combo=1;
     explode();
-    updateAllMeters();
-    goTo('askScreen');
+    updateMeter(true);
+    goTo('askScreen'); // optional, or could stay on mainScreen
 }
 function explode(){
     let boom = document.createElement("div");
@@ -230,15 +213,16 @@ function explode(){
 }
 
 // RESET GAME
-function resetGame(){
-    score=0;
-    combo=1;
-    updateAllMeters();
-    goTo('startScreen');
-}
+function resetGame(){score=0; combo=1; updateMeter(); goTo('startScreen');}
 
-// COMPLIMENT TICKER
+// COMPLIMENT
 const compliments=["You look great","You're really interesting","You're funny","I love that photo","Love your energy!","You'd be so fun on a date"];
+let complimentInterval=null;
+function clearAllIntervals(){
+    if(complimentInterval) clearInterval(complimentInterval);
+    if(askInterval) clearInterval(askInterval);
+    if(dateInterval) clearInterval(dateInterval);
+}
 function generateComplimentTicker(){
     clearAllIntervals();
     const ticker = document.getElementById("complimentTicker");
@@ -255,8 +239,9 @@ function generateComplimentTicker(){
     },100);
 }
 
-// ASK TICKER
+// ASK
 const askTopics = ["Her zodiac sign","Her favourite cocktail","What suburb she lives in","A movie she watched recently","Her favourite emoji at work","Her favourite meal to cook"];
+let askInterval=null;
 function generateAskTicker(){
     clearAllIntervals();
     const ticker = document.getElementById("askTicker");
@@ -273,8 +258,9 @@ function generateAskTicker(){
     },100);
 }
 
-// DATE TICKER
+// DATE
 const dateOptions = ["Night in and cook","See a movie","Go to a comedy show","Cocktails at a bar","Pub trivia","Botanic Gardens stroll","Arcade","Game of pool","Beach day"];
+let dateInterval=null;
 function generateDateTicker(){
     clearAllIntervals();
     const ticker = document.getElementById("dateTicker");
