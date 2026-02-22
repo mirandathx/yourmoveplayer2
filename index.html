@@ -5,16 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your Move, Player 2</title>
 <style>
-@font-face { font-family:"ArcadeClassic"; src:url("fonts/ArcadeClassic.woff2") format("woff2"), url("fonts/ArcadeClassic.woff") format("woff"); }
+@font-face { 
+  font-family:"ArcadeClassic OFF"; 
+  src:url("fonts/ArcadeClassic.woff2") format("woff2"), 
+      url("fonts/ArcadeClassic.woff") format("woff"); 
+}
 
 body{
-  margin:0; height:100vh; display:flex; justify-content:center; align-items:center; font-family:"ArcadeClassic", monospace;
-  overflow:hidden; background:radial-gradient(circle at top,#ff00c8,#ff7a00 40%,#1a001f 80%); color:white;
+  margin:0; height:100vh; display:flex; justify-content:center; align-items:center; 
+  font-family:"ArcadeClassic OFF", monospace; overflow:hidden; 
+  background:radial-gradient(circle at top,#ff00c8,#ff7a00 40%,#1a001f 80%); color:white;
 }
 .grid{
   position:fixed; bottom:0; width:200%; height:60%;
-  background:linear-gradient(to right,#00fff7 1px,transparent 1px),linear-gradient(to top,#00fff7 1px,transparent 1px);
-  background-size:40px 40px; transform:perspective(400px) rotateX(60deg); animation:moveGrid 6s linear infinite; opacity:0.4;
+  background:linear-gradient(to right,#00fff7 1px,transparent 1px),
+             linear-gradient(to top,#00fff7 1px,transparent 1px);
+  background-size:40px 40px; transform:perspective(400px) rotateX(60deg); 
+  animation:moveGrid 6s linear infinite; opacity:0.4;
 }
 @keyframes moveGrid{from{background-position:0 0;} to{background-position:0 40px;}}
 body::after{content:"";position:fixed;width:100%;height:100%;background:repeating-linear-gradient(to bottom,rgba(255,255,255,0.03),rgba(255,255,255,0.03) 1px,transparent 1px,transparent 3px);pointer-events:none;}
@@ -23,20 +30,19 @@ body::after{content:"";position:fixed;width:100%;height:100%;background:repeatin
   padding:20px; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:2;
 }
 .hidden{display:none;}
-h1{color:#ff00c8;}
-button{width:100%; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;}
+h1{color:#ff00c8; font-family:"ArcadeClassic OFF";}
+button{width:100%; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer; font-family:"ArcadeClassic OFF";}
 button:hover{background:#00fff7; color:black;}
 .score-number{color:#ff7a00; margin:6px;}
 .high-score{color:#00ff88; margin-bottom:8px;}
 .combo{color:yellow; margin-bottom:6px;}
 .meter-container{width:100%; height:18px; border:2px solid #ff00c8; margin-bottom:10px;}
 .meter-bar{height:100%; width:0%; background:#00fff7; transition:0.3s;}
-.ticker{border:2px solid #00fff7; padding:15px; margin:15px 0; min-height:40px;}
+.ticker{border:2px solid #00fff7; padding:15px; margin:15px 0; min-height:40px; font-family:"ArcadeClassic OFF";}
 .level-up{position:absolute; top:20%; font-size:30px; color:yellow; animation:blink 0.5s infinite;}
 @keyframes blink{50%{opacity:0;}}
 .explosion{position:absolute; font-size:40px; animation:boom 0.6s forwards;}
 @keyframes boom{0%{transform:scale(0);}50%{transform:scale(1.4);}100%{transform:scale(0);}}
-#complimentThumbnail{width:120px; height:120px; margin:10px auto; border:2px solid #00fff7; display:flex; justify-content:center; align-items:center; font-size:50px; background:black; color:#ff7a00;}
 </style>
 </head>
 <body>
@@ -46,13 +52,13 @@ button:hover{background:#00fff7; color:black;}
 <!-- START SCREEN -->
 <div id="startScreen">
 <h1>YOUR MOVE, PLAYER 2</h1>
-<p>LEVEL UP TALKING STAGE📱</p>
+<p>LEVEL UP TALKING STAGE</p>
 <button onclick="startGame()">START GAME</button>
 </div>
 
 <!-- MAIN SCREEN -->
 <div id="mainScreen" class="hidden">
-<h1>TIME TO CHARM!M CHOOSE YOUR MOVE</h1>
+<h1>TIME TO CHARM! CHOOSE YOUR MOVE</h1>
 <div class="high-score">HIGH SCORE: <span id="highScore">0</span></div>
 <div class="score-number">Score: <span id="score">0</span>/100</div>
 <div class="combo">Combo: x<span id="combo">1</span></div>
@@ -67,7 +73,6 @@ button:hover{background:#00fff7; color:black;}
 <!-- COMPLIMENT SCREEN -->
 <div id="complimentScreen" class="hidden">
 <h1>COMPLIMENT HER ON...</h1>
-<div id="complimentThumbnail">💖</div>
 <button id="generateComplimentBtn">Click to Generate</button>
 <div class="ticker" id="complimentTicker">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
@@ -125,20 +130,15 @@ function generateTicker(){
 
 // COMPLIMENT TICKER
 const compliments=["You're looking amazing today.","Love your energy!","You're dangerously charming.","Your laugh is contagious.","You have great taste in music."];
-const thumbnails=["💖","🌟","🔥","✨","💎"];
 let complimentInterval=null;
-
 function clearComplimentInterval(){if(complimentInterval){clearInterval(complimentInterval);complimentInterval=null;}}
-
 function generateComplimentTicker(){
   clearComplimentInterval();
   const ticker=document.getElementById("complimentTicker");
-  const thumb=document.getElementById("complimentThumbnail");
   let i=0;
   complimentInterval=setInterval(()=>{
     const index=Math.floor(Math.random()*compliments.length);
     ticker.innerText=compliments[index];
-    thumb.innerText=thumbnails[index];
     i++;if(i>15){clearComplimentInterval();document.getElementById("lockSound").play();addScore(10);}
   },100);
 }
