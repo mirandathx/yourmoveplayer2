@@ -12,24 +12,42 @@
        url("fonts/ArcadeClassic.woff") format("woff");
 }
 
-body {
+body{
   margin:0;
   height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
-  background:black;
   font-family:"ArcadeClassic", monospace;
-  color:white;
   overflow:hidden;
+  background: radial-gradient(circle at top,#ff00c8,#ff7a00 40%,#1a001f 80%);
+  color:white;
 }
 
-/* CRT Flicker */
+/* Neon grid */
+.grid{
+  position:fixed;
+  bottom:0;
+  width:200%;
+  height:60%;
+  background:
+    linear-gradient(to right, #00fff7 1px, transparent 1px),
+    linear-gradient(to top, #00fff7 1px, transparent 1px);
+  background-size:40px 40px;
+  transform: perspective(400px) rotateX(60deg);
+  animation: moveGrid 6s linear infinite;
+  opacity:0.4;
+}
+@keyframes moveGrid{
+  from{background-position:0 0;}
+  to{background-position:0 40px;}
+}
+
+/* CRT scanlines */
 body::after{
   content:"";
   position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
+  width:100%;height:100%;
   background: repeating-linear-gradient(
     to bottom,
     rgba(255,255,255,0.03),
@@ -40,238 +58,274 @@ body::after{
   pointer-events:none;
 }
 
-.container {
+.container{
   width:95vw;
   max-width:520px;
   height:92vh;
-  border:6px solid lime;
-  box-shadow:0 0 20px lime;
+  border:6px solid #00fff7;
+  box-shadow:0 0 25px #ff00c8;
+  background:black;
   padding:20px;
   text-align:center;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  background:black;
+  z-index:2;
 }
 
-.hidden { display:none; }
+.hidden{display:none;}
 
-h1 { font-size:30px; margin-bottom:20px; }
+h1{color:#ff00c8;}
 
-/* Buttons */
-button {
+button{
   width:100%;
-  margin:8px 0;
   padding:12px;
+  margin:8px 0;
   background:black;
   border:3px solid #ff7a00;
-  color:lime;
+  color:#00fff7;
   font-family:"ArcadeClassic", monospace;
   cursor:pointer;
 }
 
-button:hover {
-  background:lime;
+button:hover{
+  background:#00fff7;
   color:black;
 }
 
-/* Score Meter */
-.meter-container {
-  width:100%;
-  height:20px;
-  border:2px solid #ff7a00;
-  margin-bottom:15px;
-}
+.score-number{color:#ff7a00;margin:6px;}
+.high-score{color:#00ff88;margin-bottom:8px;}
+.combo{color:yellow;margin-bottom:6px;}
 
-.meter-bar {
+.meter-container{
+  width:100%;
+  height:18px;
+  border:2px solid #ff00c8;
+  margin-bottom:10px;
+}
+.meter-bar{
   height:100%;
   width:0%;
-  background:lime;
+  background:#00fff7;
   transition:0.3s;
 }
 
-.score-number {
-  margin-bottom:10px;
-  color:#ff7a00;
-}
-
-/* Ticker */
-.ticker {
-  margin:20px 0;
+.ticker{
+  border:2px solid #00fff7;
   padding:15px;
-  border:2px solid lime;
+  margin:15px 0;
   min-height:40px;
 }
 
-.result {
-  margin-top:20px;
-  padding:15px;
-  border:2px solid lime;
+.level-up{
+  position:absolute;
+  top:20%;
+  font-size:30px;
+  color:yellow;
+  animation:blink 0.5s infinite;
 }
 
-/* GAME OVER */
-.gameover {
-  font-size:26px;
-  color:red;
-  animation:blink 1s infinite;
+@keyframes blink{
+  50%{opacity:0;}
 }
 
-@keyframes blink {
-  50% {opacity:0.2;}
+.explosion{
+  position:absolute;
+  font-size:40px;
+  animation:boom 0.6s forwards;
+}
+@keyframes boom{
+  0%{transform:scale(0);}
+  50%{transform:scale(1.4);}
+  100%{transform:scale(0);}
 }
 </style>
 </head>
 <body>
 
-<audio id="bgMusic" loop>
-  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3">
+<div class="grid"></div>
+
+<audio id="coinSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3">
 </audio>
 
 <audio id="lockSound">
-  <source src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3">
+<source src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3">
+</audio>
+
+<audio id="explodeSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/2067/2067-preview.mp3">
+</audio>
+
+<audio id="bgMusic" loop>
+<source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3">
 </audio>
 
 <div class="container">
 
-<!-- START -->
 <div id="startScreen">
-  <h1>YOUR MOVE, PLAYER 2</h1>
-  <p>INSERT COIN</p>
-  <button onclick="startGame()">START GAME</button>
+<h1>YOUR MOVE, PLAYER 2</h1>
+<p>INSERT COIN</p>
+<button onclick="startGame()">START GAME</button>
 </div>
 
-<!-- MAIN -->
 <div id="mainScreen" class="hidden">
-  <h1>INCREASE POINTS!</h1>
+<h1>INCREASE POINTS!</h1>
 
-  <div class="score-number">Score: <span id="score">0</span>/100</div>
-  <div class="meter-container">
-    <div id="meterBar" class="meter-bar"></div>
-  </div>
+<div class="high-score">HIGH SCORE: <span id="highScore">0</span></div>
+<div class="score-number">Score: <span id="score">0</span>/100</div>
+<div class="combo">Combo: x<span id="combo">1</span></div>
 
-  <button onclick="losePoints()">OH NO, THE CONVO DIED</button>
-  <button onclick="goTo('complimentScreen')">GIVE A COMPLIMENT</button>
-  <button onclick="addScore(20)">PLAN A DATE</button>
-  <button onclick="resetGame()">END GAME</button>
+<div class="meter-container">
+<div id="meterBar" class="meter-bar"></div>
 </div>
 
-<!-- CONVO DIED -->
+<div>👩‍🎤 📱 💬 📱 🧑‍🚀</div>
+
+<button onclick="convoDied()">OH NO, THE CONVO DIED</button>
+<button onclick="goTo('complimentScreen')">GIVE A COMPLIMENT</button>
+<button onclick="addScore(20)">PLAN A DATE</button>
+<button onclick="resetGame()">END GAME</button>
+</div>
+
 <div id="deadScreen" class="hidden">
-  <h1>ASK ABOUT...</h1>
-  <button onclick="generateTicker()">CLICK TO GENERATE</button>
-  <div class="ticker" id="tickerBox">---</div>
-  <button onclick="goTo('mainScreen')">BACK</button>
+<h1>ASK ABOUT...</h1>
+<button onclick="generateTicker()">CLICK TO GENERATE</button>
+<div class="ticker" id="tickerBox">---</div>
+<button onclick="goTo('mainScreen')">BACK</button>
 </div>
 
-<!-- COMPLIMENT -->
 <div id="complimentScreen" class="hidden">
-  <h1>COMPLIMENT HER ON...</h1>
-  <button onclick="showCompliments()">CLICK</button>
-
-  <div id="complimentOptions" class="hidden">
-    <button onclick="randomCompliment('personality')">PERSONALITY</button>
-    <button onclick="randomCompliment('appearance')">APPEARANCE</button>
-    <button onclick="randomCompliment('banter')">BANTER</button>
-  </div>
-
-  <div id="complimentResult" class="result hidden"></div>
-  <button onclick="goTo('mainScreen')">BACK</button>
+<h1>COMPLIMENT HER ON...</h1>
+<button onclick="showCompliments()">CLICK</button>
+<div id="complimentOptions" class="hidden">
+<button onclick="randomCompliment()">GO</button>
+</div>
+<div id="complimentResult" class="ticker hidden"></div>
+<button onclick="goTo('mainScreen')">BACK</button>
 </div>
 
-<!-- GAME OVER -->
 <div id="gameOverScreen" class="hidden">
-  <div class="gameover">GAME OVER</div>
-  <button onclick="resetGame()">TRY AGAIN</button>
+<h1 style="color:red;">GAME OVER</h1>
+<button onclick="resetGame()">TRY AGAIN</button>
 </div>
 
 </div>
 
 <script>
-let score = 0;
+let score=0;
+let combo=1;
+let highScore=localStorage.getItem("highScore")||0;
+document.getElementById("highScore").innerText=highScore;
 
 function startGame(){
-  document.getElementById("bgMusic").play();
-  goTo('mainScreen');
+document.getElementById("coinSound").play();
+document.getElementById("bgMusic").play();
+goTo('mainScreen');
 }
 
 function goTo(screen){
-  document.querySelectorAll('.container > div').forEach(div=>{
-    div.classList.add('hidden');
-  });
-  document.getElementById(screen).classList.remove('hidden');
+document.querySelectorAll('.container > div').forEach(div=>{
+div.classList.add('hidden');
+});
+document.getElementById(screen).classList.remove('hidden');
 }
 
 function updateMeter(){
-  document.getElementById("score").innerText = score;
-  document.getElementById("meterBar").style.width = score + "%";
-  if(score <= 0){
-    goTo('gameOverScreen');
-  }
+document.getElementById("score").innerText=score;
+document.getElementById("combo").innerText=combo;
+document.getElementById("meterBar").style.width=score+"%";
+
+if(score>=50){
+showLevelUp();
+}
+
+if(score>highScore){
+highScore=score;
+localStorage.setItem("highScore",highScore);
+document.getElementById("highScore").innerText=highScore;
+}
+
+if(score<=0){
+goTo('gameOverScreen');
+}
 }
 
 function addScore(points){
-  score += points;
-  if(score > 100) score = 100;
-  updateMeter();
+score+=points*combo;
+if(score>100)score=100;
+combo++;
+updateMeter();
 }
 
-function losePoints(){
-  score -= 20;
-  if(score < 0) score = 0;
-  goTo('deadScreen');
-  updateMeter();
+function convoDied(){
+score-=20;
+combo=1;
+if(score<0)score=0;
+explode();
+updateMeter();
+goTo('deadScreen');
 }
 
-/* TICKER */
-const convoTopics = [
-  "Her zodiac sign",
-  "Her favourite cocktail",
-  "What suburb she lives in",
-  "A movie she watched recently",
-  "Her favourite emoji at work",
-  "Her favourite meal to cook"
+function explode(){
+document.getElementById("explodeSound").play();
+let boom=document.createElement("div");
+boom.className="explosion";
+boom.innerText="💥";
+document.body.appendChild(boom);
+setTimeout(()=>{boom.remove();},600);
+}
+
+function showLevelUp(){
+let lvl=document.createElement("div");
+lvl.className="level-up";
+lvl.innerText="LEVEL UP!";
+document.body.appendChild(lvl);
+setTimeout(()=>{lvl.remove();},1500);
+}
+
+const convoTopics=[
+"Her zodiac sign",
+"Her favourite cocktail",
+"What suburb she lives in",
+"A movie she watched recently",
+"Her favourite emoji at work",
+"Her favourite meal to cook"
 ];
 
 function generateTicker(){
-  let ticker = document.getElementById("tickerBox");
-  let i = 0;
-  let spin = setInterval(()=>{
-    ticker.innerText = convoTopics[Math.floor(Math.random()*convoTopics.length)];
-    i++;
-    if(i>15){
-      clearInterval(spin);
-      document.getElementById("lockSound").play();
-      addScore(10);
-    }
-  },100);
+let ticker=document.getElementById("tickerBox");
+let i=0;
+let spin=setInterval(()=>{
+ticker.innerText=convoTopics[Math.floor(Math.random()*convoTopics.length)];
+i++;
+if(i>15){
+clearInterval(spin);
+document.getElementById("lockSound").play();
+addScore(10);
 }
-
-/* COMPLIMENTS */
-const compliments = {
-  personality:["You're thoughtful.","You’re emotionally intelligent.","You have depth.","You’re grounded.","You’re calm.","You’re confident.","You’re kind.","You’re perceptive.","You listen well.","You’re authentic."],
-  appearance:["You have a great smile.","You look incredible.","Your style suits you.","Your eyes stand out.","You glow.","You look powerful.","You dress well.","You’re radiant.","You look sharp.","You carry yourself well."],
-  banter:["You’re witty.","You flirt well.","You’re playful.","You’re quick.","You match energy.","You escalate perfectly.","You’re charming.","You’re sharp.","You’re smooth.","You’re funny."]
-};
+},100);
+}
 
 function showCompliments(){
-  document.getElementById("complimentOptions").classList.remove("hidden");
+document.getElementById("complimentOptions").classList.remove("hidden");
 }
 
-function randomCompliment(type){
-  let list = compliments[type];
-  let result = list[Math.floor(Math.random()*list.length)];
-  let box = document.getElementById("complimentResult");
-  box.innerText = result;
-  box.classList.remove("hidden");
-  document.getElementById("lockSound").play();
-  addScore(10);
+function randomCompliment(){
+let result="You're dangerously charming.";
+let box=document.getElementById("complimentResult");
+box.innerText=result;
+box.classList.remove("hidden");
+document.getElementById("lockSound").play();
+addScore(10);
 }
 
 function resetGame(){
-  score = 0;
-  updateMeter();
-  goTo('startScreen');
+score=0;
+combo=1;
+updateMeter();
+goTo('startScreen');
 }
 </script>
 
