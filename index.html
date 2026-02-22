@@ -11,7 +11,7 @@
        url("fonts/ArcadeClassic.woff") format("woff");
 }
 
-body, h1, p, button, .score-number, .high-score, .combo, .ticker, .meter-bar {
+body, h1, p, button, .score-number, .ticker, .meter-bar {
   font-family: "ArcadeClassic OFF", monospace !important;
 }
 
@@ -52,8 +52,6 @@ h1{color:#ff00c8;}
 button{width:100%; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;}
 button:hover{background:#00fff7;color:black;}
 .score-number{color:#ff7a00;margin:6px;}
-.high-score{color:#00ff88;margin-bottom:8px;}
-.combo{color:yellow;margin-bottom:6px;}
 .meter-container{width:100%; height:18px; border:2px solid #ff00c8; margin-bottom:10px;}
 .meter-bar{height:100%; width:0%; background:#00fff7; transition:0.3s;}
 .ticker{border:2px solid #00fff7; padding:15px; margin:10px 0; min-height:40px; width:90%;}
@@ -106,9 +104,7 @@ button:hover{background:#00fff7;color:black;}
 <!-- MAIN SCREEN -->
 <div id="mainScreen" class="hidden">
 <h1>INCREASE POINTS!</h1>
-<div class="high-score">HIGH SCORE: <span id="highScore">0</span></div>
 <div class="score-number">Score: <span id="score">0</span>/100</div>
-<div class="combo">Combo: x<span id="combo">1</span></div>
 <div class="meter-container"><div id="meterBar" class="meter-bar"></div></div>
 
 <button onclick="convoDied()">OH NO, THE CONVO DIED</button>
@@ -121,7 +117,8 @@ button:hover{background:#00fff7;color:black;}
 <!-- COMPLIMENT SCREEN -->
 <div id="complimentScreen" class="hidden">
 <h1>COMPLIMENT HER ON...</h1>
-<button onclick="generateComplimentTicker()">CLICK TO GENERATE</button>
+<div class="score-number">Score: <span id="scoreCompliment">0</span>/100</div>
+<button onclick="generateTicker('compliment')">CLICK TO GENERATE</button>
 <div class="ticker" id="complimentTicker">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
@@ -129,15 +126,17 @@ button:hover{background:#00fff7;color:black;}
 <!-- ASK SCREEN -->
 <div id="askScreen" class="hidden">
 <h1>ASK ABOUT...</h1>
-<button onclick="generateAskTicker()">CLICK TO GENERATE</button>
+<div class="score-number">Score: <span id="scoreAsk">0</span>/100</div>
+<button onclick="generateTicker('ask')">CLICK TO GENERATE</button>
 <div class="ticker" id="askTicker">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
 
 <!-- DATE SCREEN -->
 <div id="dateScreen" class="hidden">
-<h1>PLAN A DATE...</h1>
-<button onclick="generateDateTicker()">CLICK TO GENERATE</button>
+<h1>PLAN A DATE</h1>
+<div class="score-number">Score: <span id="scoreDate">0</span>/100</div>
+<button onclick="generateTicker('date')">CLICK TO GENERATE</button>
 <div class="ticker" id="dateTicker">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
@@ -151,7 +150,7 @@ button:hover{background:#00fff7;color:black;}
 <script>
 // SCORES
 let score=0, combo=1, highScore=localStorage.getItem("highScore")||0;
-document.getElementById("highScore").innerText = highScore;
+document.getElementById("score").innerText = score;
 
 // START GAME
 function startGame(){
@@ -177,17 +176,26 @@ function goTo(screen){
 // SCORE METER
 function updateMeter(skipGameOver=false){
     document.getElementById("score").innerText = score;
-    document.getElementById("combo").innerText = combo;
     document.getElementById("meterBar").style.width = score + "%";
     if(score > highScore){
         highScore = score;
         localStorage.setItem("highScore", highScore);
-        document.getElementById("highScore").innerText = highScore;
     }
     if(!skipGameOver && score <= 0){
-        goTo('gameOverScreen');
+        goTo('startScreen');
     }
+    updateSubScreenScore();
 }
+
+// UPDATE SUBSCREEN SCORES
+function updateSubScreenScore(){
+    ['scoreCompliment','scoreAsk','scoreDate'].forEach(id=>{
+        const el = document.getElementById(id);
+        if(el) el.innerText = score;
+    });
+}
+
+// ADD SCORE
 function addScore(points){
     score += points*combo;
     if(score>100) score=100;
@@ -202,7 +210,7 @@ function convoDied(){
     if(score<0) score=0;
     explode();
     updateMeter(true);
-    goTo('askScreen'); // optional, or could stay on mainScreen
+    goTo('askScreen');
 }
 function explode(){
     let boom = document.createElement("div");
@@ -215,68 +223,6 @@ function explode(){
 // RESET GAME
 function resetGame(){score=0; combo=1; updateMeter(); goTo('startScreen');}
 
-// COMPLIMENT
-const compliments=["You look great","You're really interesting","You're funny","I love that photo","Love your energy!","You'd be so fun on a date"];
-let complimentInterval=null;
-function clearAllIntervals(){
-    if(complimentInterval) clearInterval(complimentInterval);
-    if(askInterval) clearInterval(askInterval);
-    if(dateInterval) clearInterval(dateInterval);
-}
-function generateComplimentTicker(){
-    clearAllIntervals();
-    const ticker = document.getElementById("complimentTicker");
-    let i=0;
-    complimentInterval = setInterval(()=>{
-        ticker.innerText = compliments[Math.floor(Math.random()*compliments.length)];
-        i++;
-        if(i>15){
-            clearInterval(complimentInterval);
-            document.getElementById("lockSound").play();
-            addScore(10);
-            showNiceText();
-        }
-    },100);
-}
-
-// ASK
-const askTopics = ["Her zodiac sign","Her favourite cocktail","What suburb she lives in","A movie she watched recently","Her favourite emoji at work","Her favourite meal to cook"];
-let askInterval=null;
-function generateAskTicker(){
-    clearAllIntervals();
-    const ticker = document.getElementById("askTicker");
-    let i=0;
-    askInterval = setInterval(()=>{
-        ticker.innerText = askTopics[Math.floor(Math.random()*askTopics.length)];
-        i++;
-        if(i>15){
-            clearInterval(askInterval);
-            document.getElementById("lockSound").play();
-            addScore(10);
-            showNiceText();
-        }
-    },100);
-}
-
-// DATE
-const dateOptions = ["Night in and cook","See a movie","Go to a comedy show","Cocktails at a bar","Pub trivia","Botanic Gardens stroll","Arcade","Game of pool","Beach day"];
-let dateInterval=null;
-function generateDateTicker(){
-    clearAllIntervals();
-    const ticker = document.getElementById("dateTicker");
-    let i=0;
-    dateInterval = setInterval(()=>{
-        ticker.innerText = dateOptions[Math.floor(Math.random()*dateOptions.length)];
-        i++;
-        if(i>15){
-            clearInterval(dateInterval);
-            document.getElementById("lockSound").play();
-            addScore(10);
-            showNiceText();
-        }
-    },100);
-}
-
 // NICE TEXT
 function showNiceText(){
     let text = document.createElement("div");
@@ -284,6 +230,39 @@ function showNiceText(){
     text.innerText="nice";
     document.body.appendChild(text);
     setTimeout(()=>text.remove(),800);
+}
+
+// TICKER DATA
+const tickerData = {
+  compliment: ["You look great","You're really interesting","You're funny","I love that photo","Love your energy!","You'd be so fun on a date"],
+  ask: ["Her zodiac sign","Her favourite cocktail","What suburb she lives in","A movie she watched recently","Her favourite emoji at work","Her favourite meal to cook"],
+  date: ["Night in and cook","See a movie","Go to a comedy show","Cocktails at a bar","Pub trivia","Botanic Gardens stroll","Arcade","Game of pool","Beach day"]
+};
+
+let tickerIntervals = {}; // store intervals
+
+function generateTicker(type){
+    clearAllIntervals();
+    const ticker = document.getElementById(type + "Ticker");
+    let i = 0;
+    tickerIntervals[type] = setInterval(()=>{
+        const items = tickerData[type];
+        ticker.innerText = items[Math.floor(Math.random() * items.length)];
+        i++;
+        if(i > 15){
+            clearInterval(tickerIntervals[type]);
+            document.getElementById("lockSound").play();
+            addScore(10);
+            showNiceText();
+        }
+    }, 100);
+}
+
+function clearAllIntervals(){
+    for(const key in tickerIntervals){
+        clearInterval(tickerIntervals[key]);
+        tickerIntervals[key] = null;
+    }
 }
 </script>
 </body>
