@@ -1,17 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Move, Player 2</title>
 <style>
+@font-face { 
+  font-family: "ArcadeClassic OFF"; 
+  src: url("fonts/ArcadeClassic.woff2") format("woff2"),
+       url("fonts/ArcadeClassic.woff") format("woff");
+}
+
+body, h1, p, button, .score-number, .ticker, .meter-bar {
+  font-family: "ArcadeClassic OFF", monospace !important;
+}
+
+body{
+  margin:0; height:100vh; display:flex; justify-content:center; align-items:center; 
+  overflow:hidden; 
+  background:radial-gradient(circle at top,#ff00c8,#ff7a00 40%,#1a001f 80%); 
+  color:white;
+}
+
+.grid{
+  position:fixed; bottom:0; width:200%; height:60%;
+  background:linear-gradient(to right,#00fff7 1px,transparent 1px),
+             linear-gradient(to top,#00fff7 1px,transparent 1px);
+  background-size:40px 40px; 
+  transform:perspective(400px) rotateX(60deg); 
+  animation:moveGrid 6s linear infinite; 
+  opacity:0.4;
+}
+@keyframes moveGrid{from{background-position:0 0;} to{background-position:0 40px;}}
+
+body::after{
+  content:""; 
+  position:fixed; 
+  width:100%; 
+  height:100%; 
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,0.03),rgba(255,255,255,0.03) 1px,transparent 1px,transparent 3px); 
+  pointer-events:none;
+}
+
 .container{
   width:95vw; max-width:520px; height:92vh; border:6px solid #00fff7; box-shadow:0 0 25px #ff00c8; 
   background: rgba(0,0,0,0.5); /* 50% opacity */
   padding:20px; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:2;
 }
 
-/* Score bar glow effect */
-.meter-bar.glow{
-  box-shadow: 0 0 15px 5px orange;
-  transition:0.3s;
-}
-
-/* "Nice" popup text under meter */
+.hidden{display:none;}
+h1{color:#ff00c8;}
+p{color:#00fff7;}
+button{width:100%; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;}
+button:hover{background:#00fff7;color:black;}
+.score-number{color:#ff7a00;margin:6px;}
+.meter-container{width:100%; height:18px; border:2px solid #ff00c8; margin-bottom:10px;}
+.meter-bar{height:100%; width:0%; background:#ff7a00; transition:0.3s;}
+.meter-bar.glow{box-shadow: 0 0 15px 5px orange; transition:0.3s;}
+.ticker{border:2px solid #00fff7; padding:15px; margin:15px 0; min-height:40px; color:#00ff88;}
+.coin{position:absolute; font-size:40px; animation:coinJump 0.8s forwards;}
+@keyframes coinJump{0%{transform:translateY(50px) scale(0);}50%{transform:translateY(-30px) scale(1.2);}100%{transform:translateY(0) scale(1);}}
 .nice-text{
   position:relative;
   font-size:20px;
@@ -26,9 +74,95 @@
   100%{opacity:0; transform:translateY(-20px);}
 }
 </style>
+</head>
+<body>
+<div class="grid"></div>
+<div class="container">
+
+<!-- START SCREEN -->
+<div id="startScreen">
+<h1>YOUR MOVE, PLAYER 2</h1>
+<p>LEVEL UP THE TALKING STAGE</p>
+<button onclick="startGame()">START GAME</button>
+</div>
+
+<!-- MAIN SCREEN -->
+<div id="mainScreen" class="hidden">
+<h1>AVOID WIPEOUT</h1>
+<p>Choose your move, player</p>
+<div class="score-number">Score: <span id="score">0</span>/100</div>
+<div class="meter-container"><div id="meterBar" class="meter-bar"></div></div>
+<button onclick="goTo('deadScreen')">OH NO, THE CONVO DIED</button>
+<button onclick="goTo('complimentScreen')">GIVE A COMPLIMENT</button>
+<button onclick="goTo('planScreen')">PLAN A DATE</button>
+</div>
+
+<!-- DEAD SCREEN -->
+<div id="deadScreen" class="hidden">
+<h1>ASK ABOUT...</h1>
+<button id="generateTickerBtn">CLICK TO GENERATE</button>
+<div class="ticker" id="tickerBox">---</div>
+<button onclick="goTo('mainScreen')">BACK</button>
+</div>
+
+<!-- COMPLIMENT SCREEN -->
+<div id="complimentScreen" class="hidden">
+<h1>GIVE A COMPLIMENT</h1>
+<button id="generateComplimentBtn">CLICK TO GENERATE</button>
+<div class="ticker" id="complimentTicker">---</div>
+<button onclick="goTo('mainScreen')">BACK</button>
+</div>
+
+<!-- PLAN SCREEN -->
+<div id="planScreen" class="hidden">
+<h1>PLAN A DATE...</h1>
+<button id="generatePlanBtn">CLICK TO GENERATE</button>
+<div class="ticker" id="planTicker">---</div>
+<button onclick="goTo('mainScreen')">BACK</button>
+</div>
+
+<!-- AUDIO -->
+<audio id="coinSound"><source src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+<audio id="lockSound"><source src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
 
 <script>
-// Reusable function for glow + "nice"
+// Game state
+let score=0;
+
+function startGame(){
+    playCoin();
+    goTo('mainScreen');
+}
+
+function playCoin(){
+    let coin = document.createElement("div");
+    coin.className="coin";
+    coin.innerText="🪙";
+    coin.style.left="50%";
+    coin.style.top="50%";
+    coin.style.transform="translate(-50%,0)";
+    document.body.appendChild(coin);
+    document.getElementById("coinSound").play();
+    setTimeout(()=>coin.remove(),800);
+}
+
+function goTo(screen){
+    document.querySelectorAll('.container > div').forEach(d=>d.classList.add('hidden'));
+    document.getElementById(screen).classList.remove('hidden');
+}
+
+function updateMeter(){
+    document.getElementById("score").innerText = score;
+    document.getElementById("meterBar").style.width = score + "%";
+}
+
+function addScore(points){
+    score += points;
+    if(score > 100) score = 100;
+    updateMeter();
+}
+
+// Glow + "nice" text effect
 function showNice(){
     const meter = document.getElementById("meterBar");
     meter.classList.add("glow");
@@ -41,7 +175,8 @@ function showNice(){
     setTimeout(()=>nice.remove(), 800);
 }
 
-// Update existing CLICK TO GENERATE events
+// DEAD SCREEN RANDOMIZER
+const convoTopics = ["Zodiac sign","Favourite cocktail","Suburb they live in","A movie they watched recently","Favourite emoji","Favourite meal to cook","Green flags","Red flags","Favourite chip flavour"];
 document.getElementById("generateTickerBtn").addEventListener("click", ()=>{
     let i=0; const ticker = document.getElementById("tickerBox");
     const interval = setInterval(()=>{
@@ -51,11 +186,13 @@ document.getElementById("generateTickerBtn").addEventListener("click", ()=>{
             clearInterval(interval); 
             addScore(10); 
             document.getElementById("lockSound").play();
-            showNice(); // Glow + nice text
+            showNice();
         }
     },100);
 });
 
+// COMPLIMENT SCREEN RANDOMIZER
+const compliments=["You look great today.","Love your energy!","You're so interesting.","I love that photo.","You have great taste in music.","You're so funny!"];
 document.getElementById("generateComplimentBtn").addEventListener("click", ()=>{
     let i=0; const ticker = document.getElementById("complimentTicker");
     const interval = setInterval(()=>{
@@ -65,11 +202,13 @@ document.getElementById("generateComplimentBtn").addEventListener("click", ()=>{
             clearInterval(interval); 
             addScore(10); 
             document.getElementById("lockSound").play();
-            showNice(); // Glow + nice text
+            showNice();
         }
     },100);
 });
 
+// PLAN SCREEN RANDOMIZER
+const plans=["Beach day","Stroll through the gardens","Watch a movie","Night in and cook","Cocktails and bar","Pub trivia","A game of pool","An arcade","Art gallery"];
 document.getElementById("generatePlanBtn").addEventListener("click", ()=>{
     let i=0; const ticker = document.getElementById("planTicker");
     const interval = setInterval(()=>{
@@ -79,8 +218,10 @@ document.getElementById("generatePlanBtn").addEventListener("click", ()=>{
             clearInterval(interval); 
             addScore(10); 
             document.getElementById("lockSound").play();
-            showNice(); // Glow + nice text
+            showNice();
         }
     },100);
 });
 </script>
+</body>
+</html>
