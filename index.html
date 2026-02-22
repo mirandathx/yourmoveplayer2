@@ -42,17 +42,30 @@ body::after{
   pointer-events:none;
 }
 
+/* Stable container */
 .container{
-  width:90vw; max-width:400px; height:80vh; border:6px solid #00fff7; box-shadow:0 0 25px #ff00c8; 
+  width:90vw; 
+  max-width:400px; 
+  height:80vh; 
+  border:6px solid #00fff7; 
+  box-shadow:0 0 25px #ff00c8; 
   background: black;
-  padding:20px; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:2;
-  position:relative; /* for absolute nice-text positioning */
+  padding:20px; 
+  text-align:center; 
+  display:flex; 
+  flex-direction:column; 
+  justify-content:center; 
+  align-items:center; 
+  z-index:2;
+  position:relative; /* for absolute nice-text */
+  flex-shrink:0; /* prevent shrinking */
+  transition:none; /* prevent smooth resizing between screens */
 }
 
 @media(max-width:600px){
   .container{
-    width:95vw;
-    height:70vh;
+    width:85vw;   /* slightly thinner on mobile */
+    height:65vh;  /* slightly shorter to show background */
   }
 }
 
