@@ -62,7 +62,7 @@ button{width:100%; padding:12px; margin:8px 0; background:black; border:3px soli
 button:hover{background:#00fff7;color:black;}
 .score-number{color:#ff7a00;margin:6px; font-size:18px;}
 .score-number.glow{text-shadow:0 0 15px orange; transition:0.3s;}
-.ticker{border:2px solid #00fff7; padding:15px; margin:15px 0; min-height:40px; color:#00ff88;}
+.ticker{border:2px solid #00fff7; padding:15px; margin:15px 0; min-height:40px; color:#00ff88; font-size:16px; height:50px; display:flex; align-items:center; justify-content:center;}
 .nice-text{
   position:relative;
   font-size:20px;
@@ -84,20 +84,21 @@ button:hover{background:#00fff7;color:black;}
 
 <!-- START SCREEN -->
 <div id="startScreen">
-<h1>YOUR MOVE, PLAYER 2</h1>
+<h2>YOUR MOVE, PLAYER 2</h2>
 <p>LEVEL UP THE TALKING STAGE</p>
+<p>🧑📱💬📱👩</p>
 <button onclick="startGame()">START GAME</button>
 </div>
 
 <!-- MAIN SCREEN -->
 <div id="mainScreen" class="hidden">
 <h1>AVOID WIPEOUT</h1>
-<p>Choose your move, player</p>
+<p>Choose your move to score points</p>
 <div class="score-number">Score: <span id="score">0</span>/100</div>
 <button onclick="goTo('deadScreen')">OH NO, THE CONVO DIED</button>
 <button onclick="goTo('complimentScreen')">GIVE A COMPLIMENT</button>
 <button onclick="goTo('planScreen')">PLAN A DATE</button>
-<button onclick="resetGame()">END GAME</button>
+<button onclick="endGame()">END GAME</button>
 </div>
 
 <!-- DEAD SCREEN -->
@@ -142,29 +143,64 @@ function goTo(screen){
     document.querySelectorAll('.container > div').forEach(d=>d.classList.add('hidden'));
     document.getElementById(screen).classList.remove('hidden');
 
-    // Auto-run randomizer when entering these screens
-    if(screen === 'deadScreen') runRandomizer('tickerBox', 'scoreDead');
-    if(screen === 'complimentScreen') runRandomizer('complimentTicker', 'scoreCompliment');
-    if(screen === 'planScreen') runRandomizer('planTicker', 'scorePlan');
+    // Auto-run slot machine randomizer
+    if(screen === 'deadScreen') runSlot('tickerBox','scoreDead');
+    if(screen === 'complimentScreen') runSlot('complimentTicker','scoreCompliment');
+    if(screen === 'planScreen') runSlot('planTicker','scorePlan');
 }
 
 // Update main screen score
 function updateMainScore(){ document.getElementById("score").innerText = score; }
 
-// Generic function to run a randomizer on a ticker element
-function runRandomizer(tickerId, scoreId){
+// Slot machine style randomizer
+function runSlot(tickerId, scoreId){
     const tickers = {
-        'tickerBox': ["Zodiac sign","Favourite cocktail","Suburb they live in","A movie they watched recently","Favourite emoji at work","Favourite meal to cook"],
-        'complimentTicker': ["You look great today.","Love their energy!","They're so interesting.","I love that photo.","Great taste in music.","So funny!"],
-        'planTicker': ["Beach day","Stroll through the gardens","Watch a movie","Night in and cook","Cocktails and bar","Pub trivia","A game of pool","An arcade"]
+        'tickerBox': [
+            "Your secret favourite snack",
+            "Your zodiac sign",
+            "Your go-to karaoke song",
+            "Your most hated email sign-off",
+            "Your favourite holiday destination",
+            "The music you're listening to lately"
+            "How others describe your eye colour" 
+            "A colour you wear the most" 
+            "A film you enjoyed lately"
+            "An overrated/underrated thing"
+        ],
+        'complimentTicker': [
+            "Your memes are top-tier.",
+            "I respect your coffee game.",
+            "Your Spotify playlists slay.",
+            "You're the most interesting person I'm talking to.",
+            "You're basically a walking good mood.",
+            "You have perfect snack taste."
+            "You'd be really fun on a date."
+            "Your eyes are so pretty."
+            "I can tell you're really funny."
+            "You're witty AF."
+        ],
+        'planTicker': [
+            "Beach day",
+            "Stroll through the gardens",
+            "Watch a movie",
+            "Night in and cook",
+            "Cocktails and bar",
+            "Pub trivia showdown",
+            "Pool game",
+            "Arcade showdown"
+            "Art gallery"
+        ]
     };
+
     const ticker = document.getElementById(tickerId);
     const scoreDisplay = document.getElementById(scoreId);
-    let i=0;
+    let spins = 0;
+    let totalSpins = 25 + Math.floor(Math.random()*10); // more realistic slot machine spins
     const interval = setInterval(()=>{
-        ticker.innerText = tickers[tickerId][Math.floor(Math.random()*tickers[tickerId].length)];
-        i++;
-        if(i>15){
+        let idx = Math.floor(Math.random()*tickers[tickerId].length);
+        ticker.innerText = tickers[tickerId][idx];
+        spins++;
+        if(spins > totalSpins){
             clearInterval(interval);
             // Increment score
             score += 10;
@@ -181,7 +217,7 @@ function runRandomizer(tickerId, scoreId){
             // Show nice popup
             showNice();
         }
-    },100);
+    },70); // faster interval for slot machine effect
 }
 
 // Glow + "nice" text effect
@@ -191,6 +227,11 @@ function showNice(){
     nice.innerText="nice";
     document.querySelector(".container").appendChild(nice);
     setTimeout(()=>nice.remove(), 800);
+}
+
+// End game button opens pop-up
+function endGame(){
+    window.open('https://www.wikihow.com/Be-Single-and-Happy','_blank','width=800,height=600');
 }
 
 // Reset to start
