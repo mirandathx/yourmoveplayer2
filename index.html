@@ -49,25 +49,18 @@ body::after{
 
 .hidden{display:none;}
 h1{color:#ff00c8;}
+p{margin:0 0 10px 0;}
 .score-number{color:#ff7a00;margin:6px; transition:0.3s;}
 
-/* GLOW EFFECT */
-@keyframes glowPop{
-  0% { text-shadow: 0 0 5px #ff7a00, 0 0 10px #ff00c8; transform: scale(1); }
-  50% { text-shadow: 0 0 10px #fff, 0 0 20px #ff0, 0 0 30px #0ff; transform: scale(1.4); }
-  100% { text-shadow: 0 0 5px #ff7a00, 0 0 10px #ff00c8; transform: scale(1); }
-}
-.score-pop{
-  animation: glowPop 0.5s forwards;
-}
-
-/* Ticker and button uniform style */
+/* BUTTONS AND TICKER */
 .ticker, button {
   width: 90%;
   max-width: 400px;
   margin: 10px auto;
   box-sizing: border-box;
   text-align: center;
+  font-size: 1.5em; /* larger button text */
+  padding: 15px 10px;
 }
 
 .ticker{
@@ -122,7 +115,7 @@ h1{color:#ff00c8;}
 <!-- MAIN SCREEN -->
 <div id="mainScreen" class="hidden">
 <h1>AVOID WIPEOUT</h1>
-<p>Choose your move, player</p>
+<p>Choose your move</p>
 <div class="score-number" id="score">0/100</div>
 
 <button onclick="convoDied()">OH NO, THE CONVO DIED</button>
@@ -180,7 +173,7 @@ function goTo(screen){
     clearAllIntervals();
 }
 
-// SCORE UPDATE (no glow on page switch)
+// SCORE UPDATE (no glow)
 function updateMeter(skipGameOver=false){
     const scoreElements = ['score','scoreCompliment','scoreDate'];
     scoreElements.forEach(id=>{
@@ -194,22 +187,11 @@ function updateMeter(skipGameOver=false){
     }
 }
 
-function addScore(points, triggerGlow=false){
+function addScore(points){
     score += points*combo;
     if(score>100) score=100;
     combo++;
     updateMeter();
-    // glow/pop only if triggered (by generateTicker)
-    if(triggerGlow){
-        ['scoreCompliment','scoreDate'].forEach(id=>{
-            const el = document.getElementById(id);
-            if(el){
-                el.classList.remove('score-pop');
-                void el.offsetWidth;
-                el.classList.add('score-pop');
-            }
-        });
-    }
 }
 
 // EXPLOSION
@@ -258,7 +240,7 @@ function generateTicker(type){
         if(i > 15){
             clearInterval(tickerIntervals[type]);
             document.getElementById("lockSound").play();
-            addScore(10, true); // trigger glow
+            addScore(10); // no glow
             showNiceText();
         }
     }, 100);
