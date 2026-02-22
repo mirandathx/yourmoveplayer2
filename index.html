@@ -1,266 +1,86 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Move, Player 2</title>
 <style>
-@font-face { 
-  font-family: "ArcadeClassic OFF"; 
-  src: url("fonts/ArcadeClassic.woff2") format("woff2"),
-       url("fonts/ArcadeClassic.woff") format("woff");
-}
-
-body, h1, p, button, .score-number, .high-score, .combo, .ticker, .meter-bar {
-  font-family: "ArcadeClassic OFF", monospace !important;
-}
-
-body{
-  margin:0; height:100vh; display:flex; justify-content:center; align-items:center; 
-  overflow:hidden; 
-  background:radial-gradient(circle at top,#ff00c8,#ff7a00 40%,#1a001f 80%); 
-  color:white;
-}
-
-.grid{
-  position:fixed; bottom:0; width:200%; height:60%;
-  background:linear-gradient(to right,#00fff7 1px,transparent 1px),
-             linear-gradient(to top,#00fff7 1px,transparent 1px);
-  background-size:40px 40px; 
-  transform:perspective(400px) rotateX(60deg); 
-  animation:moveGrid 6s linear infinite; 
-  opacity:0.4;
-}
-@keyframes moveGrid{from{background-position:0 0;} to{background-position:0 40px;}}
-
-body::after{
-  content:""; 
-  position:fixed; 
-  width:100%; 
-  height:100%; 
-  background:repeating-linear-gradient(to bottom,rgba(255,255,255,0.03),rgba(255,255,255,0.03) 1px,transparent 1px,transparent 3px); 
-  pointer-events:none;
-}
-
 .container{
-  width:95vw; max-width:520px; height:92vh; border:6px solid #00fff7; box-shadow:0 0 25px #ff00c8; background:black;
+  width:95vw; max-width:520px; height:92vh; border:6px solid #00fff7; box-shadow:0 0 25px #ff00c8; 
+  background: rgba(0,0,0,0.5); /* 50% opacity */
   padding:20px; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:2;
 }
 
-.hidden{display:none;}
-h1{color:#ff00c8;}
-button{width:100%; padding:12px; margin:8px 0; background:black; border:3px solid #ff7a00; color:#00fff7; cursor:pointer;}
-button:hover{background:#00fff7;color:black;}
-.score-number{color:#ff7a00;margin:6px;}
-.high-score{color:#00ff88;margin-bottom:8px;}
-.combo{color:yellow;margin-bottom:6px;}
-.meter-container{width:100%; height:18px; border:2px solid #ff00c8; margin-bottom:10px;}
-.meter-bar{height:100%; width:0%; background:#00fff7; transition:0.3s;}
-.ticker{border:2px solid #00fff7; padding:15px; margin:15px 0; min-height:40px;}
-.level-up{position:absolute; top:20%; font-size:30px; color:yellow; animation:blink 0.5s infinite;}
-@keyframes blink{50%{opacity:0;}}
-.explosion{position:absolute; font-size:40px; animation:boom 0.6s forwards;}
-@keyframes boom{0%{transform:scale(0);}50%{transform:scale(1.4);}100%{transform:scale(0);}}
-.coin{position:absolute; font-size:40px; animation:coinJump 0.8s forwards;}
-@keyframes coinJump{0%{transform:translateY(50px) scale(0);}50%{transform:translateY(-30px) scale(1.2);}100%{transform:translateY(0) scale(1);}}
-.win{position:absolute; font-size:50px; color:yellow; animation:winPop 0.8s forwards; text-shadow:0 0 10px #fff;}
-@keyframes winPop{0%{transform:scale(0);}50%{transform:scale(1.5);}100%{transform:scale(1);}}
-.win-text{position:absolute; top:60%; font-size:20px; color:#00ff88; animation:winTextFade 0.8s forwards; text-shadow:0 0 10px #0ff;}
-@keyframes winTextFade{0%{opacity:0;}50%{opacity:1;}100%{opacity:1;}}
+/* Score bar glow effect */
+.meter-bar.glow{
+  box-shadow: 0 0 15px 5px orange;
+  transition:0.3s;
+}
+
+/* "Nice" popup text under meter */
+.nice-text{
+  position:relative;
+  font-size:20px;
+  color:yellow;
+  margin-top:5px;
+  animation:fadeUp 0.8s forwards;
+  text-shadow:0 0 8px #fff;
+}
+@keyframes fadeUp{
+  0%{opacity:0; transform:translateY(10px);}
+  50%{opacity:1; transform:translateY(-10px);}
+  100%{opacity:0; transform:translateY(-20px);}
+}
 </style>
-</head>
-<body>
-<div class="grid"></div>
-<div class="container">
-
-<!-- START SCREEN -->
-<div id="startScreen">
-<h1>YOUR MOVE, PLAYER 2</h1>
-<p>Level up the talking stage!</p>
-<button onclick="startGame()">START GAME</button>
-</div>
-
-<!-- MAIN SCREEN -->
-<div id="mainScreen" class="hidden">
-<h1>INCREASE POINTS!</h1>
-<div class="high-score">HIGH SCORE: <span id="highScore">0</span></div>
-<div class="score-number">Score: <span id="score">0</span>/100</div>
-<div class="combo">Combo: x<span id="combo">1</span></div>
-<div class="meter-container"><div id="meterBar" class="meter-bar"></div></div>
-<div>👩‍🎤 📱 💬 📱 🧑‍🚀</div>
-<button onclick="convoDied()">OH NO, THE CONVO DIED</button>
-<button onclick="goTo('complimentScreen')">GIVE A COMPLIMENT</button>
-<button onclick="planDate()">PLAN A DATE</button>
-<button onclick="resetGame()">END GAME</button>
-</div>
-
-<!-- COMPLIMENT SCREEN -->
-<div id="complimentScreen" class="hidden">
-<h1>COMPLIMENT HER ON...</h1>
-<button id="generateComplimentBtn">CLICK TO GENERATE</button>
-<div class="ticker" id="complimentTicker">---</div>
-<button onclick="goTo('mainScreen')">BACK</button>
-</div>
-
-<!-- DEAD SCREEN -->
-<div id="deadScreen" class="hidden">
-<h1>ASK ABOUT...</h1>
-<button id="generateTickerBtn">CLICK TO GENERATE</button>
-<div class="ticker" id="tickerBox">---</div>
-<button onclick="goTo('mainScreen')">BACK</button>
-</div>
-
-<!-- GAME OVER -->
-<div id="gameOverScreen" class="hidden">
-<h1 style="color:red;">GAME OVER</h1>
-<button onclick="resetGame()">TRY AGAIN</button>
-</div>
-
-<!-- AUDIO -->
-<audio id="coinSound"><source src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
-<audio id="lockSound"><source src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
-<audio id="explodeSound"><source src="https://assets.mixkit.co/active_storage/sfx/2067/2067-preview.mp3"></audio>
-<audio id="bgMusic" loop><source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3"></audio>
 
 <script>
-// Scores
-let score=0, combo=1, highScore=localStorage.getItem("highScore")||0;
-document.getElementById("highScore").innerText = highScore;
+// Reusable function for glow + "nice"
+function showNice(){
+    const meter = document.getElementById("meterBar");
+    meter.classList.add("glow");
+    setTimeout(()=>meter.classList.remove("glow"), 500);
 
-// Game functions
-function startGame(){
-    document.getElementById("coinSound").play();
-    showCoin();
-    document.getElementById("bgMusic").play();
-    goTo('mainScreen');
+    const nice = document.createElement("div");
+    nice.className="nice-text";
+    nice.innerText="nice";
+    document.querySelector(".container").appendChild(nice);
+    setTimeout(()=>nice.remove(), 800);
 }
 
-function showCoin(){
-    let coin = document.createElement("div");
-    coin.className="coin";
-    coin.innerText="🪙"; // 8-bit coin
-    coin.style.left = "50%";
-    coin.style.top = "50%";
-    coin.style.transform = "translate(-50%,0)";
-    document.body.appendChild(coin);
-    setTimeout(()=>coin.remove(),800);
-}
-
-function goTo(screen){
-    document.querySelectorAll('.container > div').forEach(d=>d.classList.add('hidden'));
-    document.getElementById(screen).classList.remove('hidden');
-    clearComplimentInterval();
-}
-
-function updateMeter(skipGameOver=false){
-    document.getElementById("score").innerText = score;
-    document.getElementById("combo").innerText = combo;
-    document.getElementById("meterBar").style.width = score + "%";
-    if(score > highScore){
-        highScore = score;
-        localStorage.setItem("highScore", highScore);
-        document.getElementById("highScore").innerText = highScore;
-    }
-    if(!skipGameOver && score <= 0){
-        goTo('gameOverScreen');
-    }
-}
-
-function addScore(points){
-    score += points * combo;
-    if(score > 100) score = 100;
-    combo++;
-    updateMeter();
-}
-
-function convoDied(){
-    score -= 20;
-    combo = 1;
-    if(score < 0) score = 0;
-    explode();
-    updateMeter(true);
-    goTo('deadScreen');
-}
-
-function explode(){
-    let boom = document.createElement("div");
-    boom.className = "explosion";
-    boom.innerText = "💥";
-    document.body.appendChild(boom);
-    setTimeout(()=>{boom.remove();},600);
-}
-
-function planDate(){
-    addScore(15);
-    window.open("https://www.google.com/maps/search/dates+near+me/","_blank");
-}
-
-function resetGame(){
-    score = 0;
-    combo = 1;
-    updateMeter();
-    goTo('startScreen');
-}
-
-// ASK ABOUT TICKER
-const convoTopics = ["Her zodiac sign","Her favourite cocktail","What suburb she lives in","A movie she watched recently","Her favourite emoji at work","Her favourite meal to cook"];
-function generateTicker(){
-    const ticker = document.getElementById("tickerBox");
-    let i = 0;
-    const spin = setInterval(()=>{
+// Update existing CLICK TO GENERATE events
+document.getElementById("generateTickerBtn").addEventListener("click", ()=>{
+    let i=0; const ticker = document.getElementById("tickerBox");
+    const interval = setInterval(()=>{
         ticker.innerText = convoTopics[Math.floor(Math.random()*convoTopics.length)];
-        i++;
-        if(i>15){
-            clearInterval(spin);
+        i++; 
+        if(i>15){ 
+            clearInterval(interval); 
+            addScore(10); 
             document.getElementById("lockSound").play();
-            addScore(10);
-            showWin(); // WIN popup for Ask About
+            showNice(); // Glow + nice text
         }
     },100);
-}
+});
 
-// COMPLIMENT TICKER + WIN
-const compliments=["You look great today.","Love your energy!","You're so interesting.","I love that photo of you.","You have great taste in music.","You're so funny."];
-let complimentInterval=null;
-function clearComplimentInterval(){if(complimentInterval){clearInterval(complimentInterval);complimentInterval=null;}}
-function generateComplimentTicker(){
-    clearComplimentInterval();
-    const ticker = document.getElementById("complimentTicker");
-    let i = 0;
-    complimentInterval = setInterval(()=>{
-        const index = Math.floor(Math.random()*compliments.length);
-        ticker.innerText = compliments[index];
-        i++;
-        if(i>15){
-            clearComplimentInterval();
+document.getElementById("generateComplimentBtn").addEventListener("click", ()=>{
+    let i=0; const ticker = document.getElementById("complimentTicker");
+    const interval = setInterval(()=>{
+        ticker.innerText = compliments[Math.floor(Math.random()*compliments.length)];
+        i++; 
+        if(i>15){ 
+            clearInterval(interval); 
+            addScore(10); 
             document.getElementById("lockSound").play();
-            addScore(10);
-            showWin();
+            showNice(); // Glow + nice text
         }
     },100);
-}
-document.getElementById("generateComplimentBtn").addEventListener("click", generateComplimentTicker);
-document.getElementById("generateTickerBtn").addEventListener("click", generateTicker);
+});
 
-// WIN popup function
-function showWin(){
-    let win = document.createElement("div");
-    win.className="win";
-    win.innerText="WIN!";
-    win.style.left="50%";
-    win.style.top="40%";
-    win.style.transform="translate(-50%,0)";
-    document.body.appendChild(win);
-
-    let text = document.createElement("div");
-    text.className="win-text";
-    text.innerText="nice";
-    text.style.left="50%";
-    text.style.transform="translate(-50%,0)";
-    document.body.appendChild(text);
-
-    setTimeout(()=>{win.remove(); text.remove();},800);
-}
+document.getElementById("generatePlanBtn").addEventListener("click", ()=>{
+    let i=0; const ticker = document.getElementById("planTicker");
+    const interval = setInterval(()=>{
+        ticker.innerText = plans[Math.floor(Math.random()*plans.length)];
+        i++; 
+        if(i>15){ 
+            clearInterval(interval); 
+            addScore(10); 
+            document.getElementById("lockSound").play();
+            showNice(); // Glow + nice text
+        }
+    },100);
+});
 </script>
-</body>
-</html>
