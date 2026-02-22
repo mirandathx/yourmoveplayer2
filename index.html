@@ -14,7 +14,7 @@
 body{
   margin:0; height:100vh; display:flex; justify-content:center; align-items:center; 
   overflow:hidden; 
-  background:radial-gradient(circle at top,#ff00c8,#ff7a00 40%,#1a001f 80%); 
+  background:radial-gradient(circle at top,#ff00c8,#ff7a00 40%,#1a001f 80%);
   font-family: "ArcadeClassic OFF", monospace;
   color:white;
 }
@@ -40,21 +40,29 @@ body::after{
 }
 
 .container{
-  width:85%; max-width:400px; height:70vh; border:6px solid #00fff7; 
-  box-shadow:0 0 25px #ff00c8; background: rgba(0,0,0,0.85);
+  width:85%; max-width:400px; min-width:280px;
+  height:auto;
+  border:6px solid #00fff7; 
+  box-shadow:0 0 25px #ff00c8; 
+  background: rgba(0,0,0,0.85);
   padding:20px; display:flex; flex-direction:column; justify-content:center; align-items:center; 
-  position:relative; z-index:2;
   text-align:center;
+  position:relative;
+  font-family: "ArcadeClassic OFF", monospace;
 }
+
 @media(max-width:600px){
   .container{
     width:90%;
-    height:65vh;
     padding:15px;
   }
 }
 
 .hidden{display:none;}
+
+h1,h2,p, .score-number, .ticker, button, .start-again{
+  font-family: "ArcadeClassic OFF", monospace;
+}
 
 h1,h2{color:#ff00c8; margin-bottom:15px;}
 p{color:#00ff7; margin-bottom:10px;}
@@ -70,12 +78,12 @@ p{color:#00ff7; margin-bottom:10px;}
 .score-number.glow{text-shadow:0 0 15px orange; transition:0.3s;}
 
 .ticker{
-  width:90%; max-width:300px; font-size:20px; color:white;
+  width:90%; max-width:300px; font-size:22px; color:white;
   text-align:center;
   margin:15px 0;
-  display:flex; justify-content:center; align-items:center;
   min-height:50px;
   background:transparent; border:none;
+  display:flex; justify-content:center; align-items:center;
 }
 
 button{
@@ -93,17 +101,19 @@ button:hover{background:#00fff7;color:black;}
   animation:fadeUp 0.8s forwards;
   text-shadow:0 0 8px #fff;
 }
-@keyframes fadeUp{
-  0%{opacity:0; transform:translateY(10px);}
-  50%{opacity:1; transform:translateY(-10px);}
-  100%{opacity:0; transform:translateY(-20px);}
-}
 
 .celebration-text{
   position:absolute; top:5%; left:50%; transform:translateX(-50%); 
   font-size:36px; color:yellow; text-shadow:0 0 10px #fff; animation:bounce 0.8s forwards;
   z-index:999;
 }
+
+@keyframes fadeUp{
+  0%{opacity:0; transform:translateY(10px);}
+  50%{opacity:1; transform:translateY(-10px);}
+  100%{opacity:0; transform:translateY(-20px);}
+}
+
 @keyframes bounce{
   0%{transform:translate(-50%,0) scale(0);}
   50%{transform:translate(-50%,-30px) scale(1.5);}
@@ -113,13 +123,9 @@ button:hover{background:#00fff7;color:black;}
 .start-again{
   color:#00ff00;
   font-size:12px;
-  position:absolute;
-  bottom:5px;
+  margin-top:auto;
   cursor:pointer;
 }
-
-#startScreen h2{font-size:36px;}
-#startScreen p{font-size:20px; margin:10px 0;}
 </style>
 </head>
 <body>
@@ -129,7 +135,7 @@ button:hover{background:#00fff7;color:black;}
 <div id="startScreen">
 <h2>YOUR MOVE, PLAYER 2</h2>
 <p>LEVEL UP THE TALKING STAGE</p>
-<p>🧑📱💬📱👩</p>
+<p>📱💬📱</p>
 <button onclick="startGame()">START GAME</button>
 </div>
 
@@ -235,8 +241,6 @@ function runSlot(tickerId, scoreId){
             sound.volume = 0.5;
             sound.currentTime = 0;
             sound.play();
-            if(score===50) showCelebration("Wahoo!");
-            if(score===100) showCelebration("MAX SCORE!");
         }
     },60);
 }
@@ -247,14 +251,6 @@ function showNice(){
     nice.innerText="nice";
     document.querySelector(".container").appendChild(nice);
     setTimeout(()=>nice.remove(),800);
-}
-
-function showCelebration(text){
-    const elem = document.createElement("div");
-    elem.className="celebration-text";
-    elem.innerText=text;
-    document.body.appendChild(elem);
-    setTimeout(()=>elem.remove(),1200);
 }
 
 function endGame(){
