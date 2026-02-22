@@ -185,7 +185,7 @@ button:hover{
 
 <button onclick="convoDied()">OH NO, THE CONVO DIED</button>
 <button onclick="goTo('complimentScreen')">GIVE A COMPLIMENT</button>
-<button onclick="addScore(20)">PLAN A DATE</button>
+<button onclick="planDate()">PLAN A DATE</button>
 <button onclick="resetGame()">END GAME</button>
 </div>
 
@@ -198,11 +198,7 @@ button:hover{
 
 <div id="complimentScreen" class="hidden">
 <h1>COMPLIMENT HER ON...</h1>
-<button onclick="showCompliments()">CLICK</button>
-<div id="complimentOptions" class="hidden">
-<button onclick="randomCompliment()">GO</button>
-</div>
-<div id="complimentResult" class="ticker hidden"></div>
+<div class="ticker" id="complimentBox">---</div>
 <button onclick="goTo('mainScreen')">BACK</button>
 </div>
 
@@ -220,113 +216,131 @@ let highScore=localStorage.getItem("highScore")||0;
 document.getElementById("highScore").innerText=highScore;
 
 function startGame(){
-document.getElementById("coinSound").play();
-document.getElementById("bgMusic").play();
-goTo('mainScreen');
+  document.getElementById("coinSound").play();
+  document.getElementById("bgMusic").play();
+  goTo('mainScreen');
 }
 
 function goTo(screen){
-document.querySelectorAll('.container > div').forEach(div=>{
-div.classList.add('hidden');
-});
-document.getElementById(screen).classList.remove('hidden');
+  document.querySelectorAll('.container > div').forEach(div=>{
+    div.classList.add('hidden');
+  });
+  document.getElementById(screen).classList.remove('hidden');
 }
 
 function updateMeter(){
-document.getElementById("score").innerText=score;
-document.getElementById("combo").innerText=combo;
-document.getElementById("meterBar").style.width=score+"%";
+  document.getElementById("score").innerText=score;
+  document.getElementById("combo").innerText=combo;
+  document.getElementById("meterBar").style.width=score+"%";
 
-if(score>=50){
-showLevelUp();
-}
+  if(score>=50){
+    showLevelUp();
+  }
 
-if(score>highScore){
-highScore=score;
-localStorage.setItem("highScore",highScore);
-document.getElementById("highScore").innerText=highScore;
-}
+  if(score>highScore){
+    highScore=score;
+    localStorage.setItem("highScore",highScore);
+    document.getElementById("highScore").innerText=highScore;
+  }
 
-if(score<=0){
-goTo('gameOverScreen');
-}
+  if(score<=0){
+    goTo('gameOverScreen');
+  }
 }
 
 function addScore(points){
-score+=points*combo;
-if(score>100)score=100;
-combo++;
-updateMeter();
+  score+=points*combo;
+  if(score>100)score=100;
+  combo++;
+  updateMeter();
 }
 
 function convoDied(){
-score-=20;
-combo=1;
-if(score<0)score=0;
-explode();
-updateMeter();
-goTo('deadScreen');
+  score-=20;
+  combo=1;
+  if(score<0)score=0;
+  explode();
+  updateMeter();
+  goTo('deadScreen');
 }
 
 function explode(){
-document.getElementById("explodeSound").play();
-let boom=document.createElement("div");
-boom.className="explosion";
-boom.innerText="💥";
-document.body.appendChild(boom);
-setTimeout(()=>{boom.remove();},600);
+  document.getElementById("explodeSound").play();
+  let boom=document.createElement("div");
+  boom.className="explosion";
+  boom.innerText="💥";
+  document.body.appendChild(boom);
+  setTimeout(()=>{boom.remove();},600);
 }
 
 function showLevelUp(){
-let lvl=document.createElement("div");
-lvl.className="level-up";
-lvl.innerText="LEVEL UP!";
-document.body.appendChild(lvl);
-setTimeout(()=>{lvl.remove();},1500);
+  let lvl=document.createElement("div");
+  lvl.className="level-up";
+  lvl.innerText="LEVEL UP!";
+  document.body.appendChild(lvl);
+  setTimeout(()=>{lvl.remove();},1500);
 }
 
 const convoTopics=[
-"Her zodiac sign",
-"Her favourite cocktail",
-"What suburb she lives in",
-"A movie she watched recently",
-"Her favourite emoji at work",
-"Her favourite meal to cook"
+  "Her zodiac sign",
+  "Her favourite cocktail",
+  "What suburb she lives in",
+  "A movie she watched recently",
+  "Her favourite emoji at work",
+  "Her favourite meal to cook"
 ];
 
 function generateTicker(){
-let ticker=document.getElementById("tickerBox");
-let i=0;
-let spin=setInterval(()=>{
-ticker.innerText=convoTopics[Math.floor(Math.random()*convoTopics.length)];
-i++;
-if(i>15){
-clearInterval(spin);
-document.getElementById("lockSound").play();
-addScore(10);
-}
-},100);
-}
-
-function showCompliments(){
-document.getElementById("complimentOptions").classList.remove("hidden");
+  let ticker=document.getElementById("tickerBox");
+  let i=0;
+  let spin=setInterval(()=>{
+    ticker.innerText=convoTopics[Math.floor(Math.random()*convoTopics.length)];
+    i++;
+    if(i>15){
+      clearInterval(spin);
+      document.getElementById("lockSound").play();
+      addScore(10);
+    }
+  },100);
 }
 
-function randomCompliment(){
-let result="You're dangerously charming.";
-let box=document.getElementById("complimentResult");
-box.innerText=result;
-box.classList.remove("hidden");
-document.getElementById("lockSound").play();
-addScore(10);
+const complimentTopics=[
+  "You're looking amazing today.",
+  "Love your energy!",
+  "You're dangerously charming.",
+  "Your laugh is contagious.",
+  "You have great taste in music."
+];
+
+function showComplimentTicker(){
+  let ticker=document.getElementById("complimentBox");
+  let i=0;
+  let spin=setInterval(()=>{
+    ticker.innerText=complimentTopics[Math.floor(Math.random()*complimentTopics.length)];
+    i++;
+    if(i>10){
+      clearInterval(spin);
+      document.getElementById("lockSound").play();
+      addScore(10);
+    }
+  },100);
+}
+
+function planDate(){
+  addScore(15); // reward points for planning
+  window.open("https://www.google.com/maps/search/dates+near+me/","_blank");
 }
 
 function resetGame(){
-score=0;
-combo=1;
-updateMeter();
-goTo('startScreen');
+  score=0;
+  combo=1;
+  updateMeter();
+  goTo('startScreen');
 }
+
+// Initialize compliment ticker automatically when screen shows
+document.getElementById('complimentScreen').addEventListener('transitionend', showComplimentTicker);
+document.getElementById('complimentScreen').addEventListener('animationend', showComplimentTicker);
 </script>
 
 </body>
