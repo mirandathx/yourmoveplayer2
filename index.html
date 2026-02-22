@@ -191,15 +191,16 @@ function addScore(points){
     updateMeter();
 }
 
-// EXPLOSION
+// EXPLOSION / CONVO DIED
 function convoDied(){
     score -= 20;
     combo =1;
     if(score<0) score=0;
     explode();
     updateMeter(true);
-    goTo('complimentScreen');
+    // Remain on main screen, no forced navigation
 }
+
 function explode(){
     let boom = document.createElement("div");
     boom.className="explosion";
